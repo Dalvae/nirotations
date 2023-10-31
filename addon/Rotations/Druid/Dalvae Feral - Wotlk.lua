@@ -271,8 +271,8 @@ if wotlk then
 		end
 	end
 
-	SLASH_CHARGE1               = "/charge"
-	SlashCmdList["CHARGE"]      = function(msg)
+	SLASH_CHARGES1              = "/charges"
+	SlashCmdList["CHARGES"]     = function(msg)
 		if ni.spell.cd(spells.Charge.id) == 0
 		then
 			if not ni.player.buff(spells.BearForm.id)
@@ -330,9 +330,10 @@ if wotlk then
 	local queue = {
 		--buffs
 		"Cache",
+		-- "switchweapon",
 		-- "Test",
-		"GOTW",
-		"Thorns",
+		-- "GOTW",
+		-- "Thorns",
 		"Pounce",
 		"INVI",
 		"Pause Rotation",
@@ -342,6 +343,7 @@ if wotlk then
 		"Barkskin",
 		"Survival",
 		"Tigers Fury",
+		"Berserk",
 		"Bombs",
 		"Interrupter",
 		"FeralCharge",
@@ -362,7 +364,7 @@ if wotlk then
 		"Shred100",
 		"SavageRoar",
 		"Ingrediente Secreto",
-		-- "MangleDebuff",
+		"MangleDebuff",
 		"Rake",
 		"Shredauto",
 		"Rip",
@@ -417,7 +419,9 @@ if wotlk then
 
 		["Pounce"] = function()
 			if ni.spell.available(spells.Pounce.id)
-					and ni.unit.buff("player", spells.Prowl.id, "player") then
+					and UnitCanAttack("player", "target")
+					and ni.unit.buff("player", spells.Prowl.id, "player")
+			then
 				ni.spell.cast(spells.Pounce.id)
 			end
 		end,
@@ -456,7 +460,7 @@ if wotlk then
 			if enables["Invi"] then
 				if ni.spell.available(spells.Prowl.id)
 						and not UnitAffectingCombat("player")
-						and cat
+						and Cache.cat
 						and not ni.unit.buff("player", spells.Prowl.id, "player")
 				then
 					ni.spell.cast(spells.Prowl.id)
@@ -527,8 +531,23 @@ if wotlk then
 		["Tigers Fury"] = function()
 			if cat
 					and ni.spell.cd(spells.TigersFury.id) == 0
-					and ni.player:power() < 35 then
+					and ni.player.powerraw() < 35 then
 				ni.spell.cast(spells.TigersFury.id)
+			end
+		end,
+		["Berserk"] = function()
+			if ni.vars.combat.cd
+					and ni.spell.cd(spells.Berserk.id) == 0
+			then
+				if cat
+						and ni.unit.isboss(t)
+						and ni.player.buffremaining(spells.TigersFury.id) > 4
+						and ni.player.powerraw() > 80
+				then
+					ni.spell.cast(spells.Berserk.id)
+					ni.player.useitem(40211)
+					ni.player.runtext("/use 10")
+				end
 			end
 		end,
 
@@ -543,6 +562,18 @@ if wotlk then
 				return true;
 			end
 		end,
+		["switchweapon"] = function()
+			local itemLink = GetInventoryItemLink("player", 16)
+			local enchantId = itemLink and itemLink:match("Hitem:%d+:(%d+)")
+			if enchantId == 33790
+					and ni.player.buff(59626)
+			then
+				print("SSSASAS")
+				ni.player.runtext("/equip Fin del viaje")
+			end
+		end,
+
+
 		["Rake"] = function()
 			if ni.spell.available(spells.Rake.id)
 					and GetComboPoints("player", "target") < 5
@@ -557,6 +588,7 @@ if wotlk then
 						and not ni.unit.debuff(t, spells.Manglecat.id)
 						and not ni.unit.debuff(t, 48563)
 						and not ni.unit.debuff(t, 46856)
+						and not ni.unit.debuff(t, 46857)
 						and not ni.unit.debuff(t, 55218) then
 					ni.spell.cast(spells.Manglecat.id)
 				end
@@ -671,7 +703,7 @@ if wotlk then
 						and ni.drtracker.get("focus", "Cyclone") > 0
 						and ni.spell.valid("focus", spells.Cyclone.id, false, true)
 				then
-					print("cyclone on focis")
+					print("cyclone on focus")
 					ni.spell.cast(spells.Cyclone.id, "focus")
 				end
 			end
@@ -720,11 +752,14 @@ if wotlk then
 						and ni.player.itemcd(42641) == 0
 				then
 					if ni.unit.inmelee(p, t)
+							and UnitCanAttack("player", "target")
+							and ni.player.hp() > 40
 					then
 						ni.player.useitem(42641)
 					end
 				else
 					if ni.player.hasitem(41119) --Sarobomb
+							and UnitCanAttack("player", "target")
 							and ni.player.itemcd(41119) == 0
 					then
 						ni.player.useitem(41119)
@@ -878,8 +913,8 @@ if wotlk then
 						-- and not ni.spell.gcd()	
 						and ni.player:power(3) < 30
 						and ni.spell.cd(spells.TigersFury.id) > 2
-						and not ni.player.buff(53909)
-						and not ni.player.buff(54758)
+						-- and not ni.player.buff(53909)
+						-- and not ni.player.buff(54758)
 						and not ni.player.buff(50334, "EXACT") --Berserk
 						and not ni.player.buff(16870)    -- Clear casting
 						-- and GetComboPoints("player", "target") < 5
@@ -897,7 +932,7 @@ if wotlk then
 		["Rip"] = function()
 			if enables["Automated"] then
 				if ni.player.buff(spells.CatForm.id)
-						and Cache.riptimer < 1
+						and not ni.unit.debuff(t, spells.Rip.id, p)
 						and GetComboPoints("player", "target") > 4
 				then
 					ni.spell.cast(spells.Rip.id, "target")
