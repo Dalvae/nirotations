@@ -2178,6 +2178,10 @@
 		"UIDropDownMenu_AddButton",
 		"UIDropDownMenu_CreateInfo",
 		"SPELL_FAILED_NOT_BEHIND",
-		"BOOKTYPE_SPELL"
+		"BOOKTYPE_SPELL",
+		"NUM_BAG_SLOTS",
+		"math",
+		"_G",
+		"table"
 	]
 }
