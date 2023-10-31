@@ -1,3 +1,5 @@
 settings.json
 *.exe
 *.dll
+*.json
+*.xml
