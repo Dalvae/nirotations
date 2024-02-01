@@ -6,12 +6,12 @@ local wotlk = build == 30300 or false;
 if wotlk then
 	local AntiAFKTime = 0;
 	local items = {
-		settingsfile = "DruidRestoEN_Free_Darhanger.json",
-		{ type = "title",    text = "Free Restoration Druid by |c0000CED1DarhangeR|r" },
+		settingsfile = "Dalvae-RestoDruid.json",
+		{ type = "title",    text = "Restoration Druid by |c0000CED1Dalvae|r" },
 		{ type = "separator" },
 		{ type = "title",    text = "|cffFF7C0AProfile version 0.0.2|r" },
 		{ type = "separator" },
-		{ type = "page",     number = 1,                                              text = "|cffFFFF00Main Settings" },
+		{ type = "page",     number = 1,                                      text = "|cffFFFF00Main Settings" },
 		{ type = "separator" },
 		{
 			type = "entry",
@@ -144,7 +144,7 @@ if wotlk then
 			tooltip =
 			"Use spell when ally |cff00D700HP|r < %.",
 			enabled = true,
-			value = 99,
+			value = 100,
 			min = 10,
 			max = 100,
 			step = 1,
@@ -158,7 +158,7 @@ if wotlk then
 			tooltip =
 			"Use spell when ally |cff00D700HP|r < %.",
 			enabled = true,
-			value = 95,
+			value = 100,
 			min = 10,
 			max = 100,
 			step = 1,
@@ -347,9 +347,9 @@ if wotlk then
 		"Universal Pause",
 		"Gift of the Wild",
 		"Thorns",
-		"Tree of Life",
 		"Barkskin",
 		"Combat Specific Pause",
+		"Tree of Life",
 		"Nature's Swiftness",
 		"Swiftmend",
 		"Wild Growth",
@@ -435,8 +435,12 @@ if wotlk then
 			end
 		end,
 		["Follow"] = function()
-			local lastclick = 0;
-			local unit = "Tokischa"
+			if not lastclick then lastclick = 0 end
+
+			local unit = ni.vars.units.follow
+			if unit == nil or unit == "" then
+				return
+			end
 			local uGUID = UnitGUID(unit) or ni.objectmanager.objectGUID(unit);
 			local mtime = math.random(0.2, 0.5)
 			local followTar = nil;
@@ -784,14 +788,16 @@ if wotlk then
 			local allyOne = ni.members[1];
 			local ally = ni.members.inrangewithoutbuffbelow(allyOne.unit, 14, spells.WildGrowth, value);
 			if #ally >= 3
-					and allyOne:hp() <= value
+					-- and allyOne:hp() <= value
 					and allyOne:valid(spells.WildGrowth, false, true) then
 				ni.spell.cast(spells.WildGrowth, allyOne.unit)
 				return true;
 			end
 		end,
 	};
-	ni.bootstrap.profile("Wrath_Restoration_DarhangeR", queue, abilities, OnLoad, OnUnLoad);
+
+
+	ni.bootstrap.profile("Dalvae-RestoDruid", queue, abilities, OnLoad, OnUnLoad);
 else
 	local queue = {
 		"Error",
@@ -804,5 +810,5 @@ else
 			end
 		end,
 	};
-	ni.bootstrap.profile("Wrath_Restoration_DarhangeR", queue, abilities);
+	ni.bootstrap.profile("Dalvae-RestoDruid", queue, abilities);
 end;
