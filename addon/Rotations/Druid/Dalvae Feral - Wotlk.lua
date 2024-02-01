@@ -356,8 +356,8 @@ if wotlk then
 		"DispelHEX",
 		"AbolishPoison",
 		"Ferocious Bite",
-		"Ferocious Bite1",
-		"Ferocious Bite2",
+		-- "Ferocious Bite1",
+		-- "Ferocious Bite2",
 		"Shreadcc",
 		"Faerie fire",
 		"WILD",
@@ -373,7 +373,7 @@ if wotlk then
 		"Maul",
 		"SwipeBear",
 		"MangleBear",
-		"Demoralazing",
+		-- "Demoralazing",
 		"Enrage",
 		"FaerieFirebear",
 		"Lacerate",
@@ -912,7 +912,7 @@ if wotlk then
 				if ni.spell.available(spells.CatForm.id)
 						-- and not ni.spell.gcd()	
 						and ni.player:power(3) < 30
-						and ni.spell.cd(spells.TigersFury.id) > 2
+						and ni.spell.cd(spells.TigersFury.id) > 1
 						-- and not ni.player.buff(53909)
 						-- and not ni.player.buff(54758)
 						and not ni.player.buff(50334, "EXACT") --Berserk
@@ -954,7 +954,7 @@ if wotlk then
 
 		["FrenziedRegeneration"] = function()
 			if ni.player.buff(spells.BearForm.id)
-					and ni.player.hp() < 60
+					and ni.player.hp() < 30
 			then
 				ni.spell.cast(spells.FrenziedRegeneration.id)
 			end
@@ -985,7 +985,7 @@ if wotlk then
 		["Maul"] = function()
 			if Cache.bear
 					and ni.spell.available(spells.Maul.id)
-					and ni.player:power("rage") > 50
+					and ni.player:power("rage") > 10
 					and not IsCurrentSpell(spells.Maul.id)
 			then
 				ni.spell.cast(spells.Maul.id)
