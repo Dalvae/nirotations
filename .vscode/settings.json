@@ -2182,6 +2182,12 @@
 		"NUM_BAG_SLOTS",
 		"math",
 		"_G",
-		"table"
+		"table",
+		"enabled",
+		"Item",
+		"GameTooltip",
+		"Minimap",
+		"C_PetBattles",
+		"C_PetJournal"
 	]
 }
