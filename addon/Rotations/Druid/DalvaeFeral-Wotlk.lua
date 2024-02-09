@@ -1,22 +1,3 @@
---------------------------------
--- TaptoRotations  - Feral Pvp
--- Version - 1.0.3
--- Author - Tapto
---------------------------------
--- Changelog
--- 1.0.0 Initial release
--- 1.0.1  Ported to Ni.V2
--- 1.0.2 Added local spells
--- 1.0.3 Added 3 interrupts
--- 1.0.4 Added Slash commands for better assist
--- 1.0.5 Added Antislow
--- 1.0.6 Added Bear rotation
---------------------------------
--- TODO
--- GUI  for enabled assist or full automatic mode
--- AbolishPoison on low Hp on healer
--- Auto Innervate on slash command
-
 local build = select(4, GetBuildInfo());
 local wotlk = build == 30300 or false;
 if wotlk then
@@ -72,15 +53,15 @@ if wotlk then
 	}
 	local enables = {
 		["CatForm"] = true,
-		["Invi"] = true,
+		["Invi"] = false,
 		["CCBuff"] = true,
 		["Automated"] = true,
-		["BerserkFear"] = true,
+		["BerserkFear"] = false,
 		["ChargeBear"] = true,
-		["Interrupts"] = true,
+		["Interrupts"] = false,
 		["CycloneInterupt"] = true,
 		["CycloneFocus"] = true,
-		["Bombs"] = true,
+		["Bombs"] = false,
 
 	}
 	local values = {
@@ -100,9 +81,9 @@ if wotlk then
 	end
 
 	local items = {
-		settingsfile = "Feral-PVP.json",
+		settingsfile = "DalvaeFeral.json",
 		callback = GUICallback,
-		{ type = "title",    text = "|cff00ccffFeral-PVP" },
+		{ type = "title",    text = "|cff00ccffFeral-Dalvae" },
 		{ type = "separator" },
 		{ type = "separator" },
 		{
@@ -228,15 +209,84 @@ if wotlk then
 		end
 	end
 	;
+	local DBM_Timers = {}
+	local nextExpire  -- tiempo del próximo temporizador que expira
+	local recheckTimer -- manejar del temporizador
 
-
-	local function onload()
-		ni.GUI.AddFrame("Feral PVP", items)
-		print("Rotation \124cFF15E615Feral PVP")
+	local function recheckDBMTimers()
+		local now = GetTime()
+		nextExpire = nil
+		for id, timer in pairs(DBM_Timers) do
+			if timer.expirationTime < now then
+				-- El temporizador ha expirado
+				DBM_Timers[id] = nil
+				print("DBM Timer Stopped: ", timer.message)
+			else
+				if not nextExpire or timer.expirationTime < nextExpire then
+					nextExpire = timer.expirationTime
+				end
+			end
+		end
+		if nextExpire then
+			-- Revisar nuevamente en el momento en que el próximo temporizador expire
+			recheckTimer = C_Timer.NewTimer(nextExpire - now, recheckDBMTimers)
+		end
 	end
 
+	local function UpdateDBMTimers(event, id, msg, duration)
+		if event == "DBM_TimerStart" then
+			local startTime = GetTime()
+			local expirationTime = startTime + duration
+			DBM_Timers[id] = { message = msg, duration = duration, startTime = startTime, expirationTime = expirationTime }
+			print("DBM Timer Started: ", msg, " Duration: ", duration)
+			-- Cancelar y reprogramar la revisión de temporizadores si este temporizador expira antes que el próximo conocido
+			if not nextExpire or expirationTime < nextExpire then
+				if recheckTimer then
+					recheckTimer:Cancel()
+				end
+				nextExpire = expirationTime
+				recheckTimer = C_Timer.NewTimer(duration, recheckDBMTimers)
+			end
+		elseif event == "DBM_TimerStop" then
+			DBM_Timers[id] = nil
+		end
+	end
+
+	local function DBMEventHandler(event, ...)
+		local id, msg, duration, icon, timerType, spellId, dbmType = ...
+		if event == "DBM_TimerStart" then
+			UpdateDBMTimers(event, id, msg, duration)
+		elseif event == "DBM_TimerStop" then
+			UpdateDBMTimers(event, id)
+		end
+	end
+
+	local function CheckPullInTimerRemaining()
+		for id, timer in pairs(DBM_Timers) do
+			if timer.message == "Pull in" then -- Asegúrate de que este mensaje coincida exactamente con lo que DBM usa
+				local now = GetTime()
+				local remaining = timer.expirationTime - now
+				return remaining
+			end
+		end
+		return nil -- El temporizador "Pull in" no está activo o no se encontró
+	end
+
+	local function onload()
+		ni.GUI.AddFrame("Feral Dalvae", items)
+		print("Rotation \124cFF15E615Fera Dalvae")
+		if DBM then
+			DBM:RegisterCallback("DBM_TimerStart", DBMEventHandler)
+			DBM:RegisterCallback("DBM_TimerStop", DBMEventHandler)
+			-- Opcional: Si quieres mostrar el tiempo restante cada segundo
+			-- C_Timer.NewTicker(1, ShowRemainingTimeForPullIn)
+		end
+	end
+
+
+
 	local function onunload()
-		ni.GUI.DestroyFrame("Feral PVP")
+		ni.GUI.DestroyFrame("Feral Dalvae")
 		print("Rotation \124cFFE61515stopped!")
 	end
 
@@ -309,6 +359,7 @@ if wotlk then
 		end
 		return false
 	end
+
 	local t, p = "target", "player"
 	local cat = ni.player.buff(spells.CatForm.id)
 	local bear = ni.player.buff(spells.BearForm.id)
@@ -327,6 +378,8 @@ if wotlk then
 		bear = ni.player.buff(spells.BearForm.id)
 
 	}
+
+
 	local queue = {
 		--buffs
 		"Cache",
@@ -334,6 +387,7 @@ if wotlk then
 		-- "Test",
 		-- "GOTW",
 		-- "Thorns",
+		"PrePull",
 		"Pounce",
 		"INVI",
 		"Pause Rotation",
@@ -394,6 +448,8 @@ if wotlk then
 			Cache.savagertimer = ni.player.buffremaining(spells.SavageRoar.id)
 			Cache.cat = ni.player.buff(spells.CatForm.id)
 			Cache.bear = ni.player.buff(spells.BearForm.id)
+			Cache.berserk = ni.player.buff(50334, "EXACT") --Berserk
+
 
 			-- if ni.unit.debuff("target", "Сглаз")
 			-- 		or ni.unit.debuff("target", "Устрашающий крик")
@@ -545,7 +601,7 @@ if wotlk then
 						and ni.player.powerraw() > 80
 				then
 					ni.spell.cast(spells.Berserk.id)
-					ni.player.useitem(40211)
+					-- ni.player.useitem(40211)
 					ni.player.runtext("/use 10")
 				end
 			end
@@ -554,7 +610,7 @@ if wotlk then
 		["Faerie fire"] = function()
 			if ni.player.buff(spells.CatForm.id)
 					and ni.spell.available(spells.FaerieFire.id)
-					and not ni.unit.debuff(t, spells.FaerieFire.id)
+					and not (ni.unit.debuff(t, spells.FaerieFire.id) or ni.unit.debuff(t, "770") or ni.unit.debuff(t, "16857"))
 					and ni.player:power() < 17
 			then
 				print("fuego ferico")
@@ -562,34 +618,45 @@ if wotlk then
 				return true;
 			end
 		end,
+
 		["switchweapon"] = function()
 			local itemLink = GetInventoryItemLink("player", 16)
 			local enchantId = itemLink and itemLink:match("Hitem:%d+:(%d+)")
 			if enchantId == 33790
 					and ni.player.buff(59626)
 			then
-				print("SSSASAS")
 				ni.player.runtext("/equip Fin del viaje")
 			end
 		end,
 
 
 		["Rake"] = function()
-			if ni.spell.available(spells.Rake.id)
-					and GetComboPoints("player", "target") < 5
-					and not ni.unit.debuff("target", spells.Rake.id, "player") then
-				ni.spell.cast(spells.Rake.id)
+			if not ni.unit.debuff("target", spells.Rake.id, "player")
+					and ni.unit.inmelee(p, t)
+			then
+				if GetComboPoints("player", "target") < 5
+				then
+					ni.spell.cast(spells.Rake.id)
+				else
+					if Cache.riptimer > 4
+							and Cache.savagertimer > 4
+					then
+						ni.spell.cast(spells.Rake.id, t)
+					end
+				end
 			end
 		end,
+
 		["MangleDebuff"] = function()
 			if enables["Automated"] then
 				if cat
-						and ni.spell.available(spells.Manglecat.id)
-						and not ni.unit.debuff(t, spells.Manglecat.id)
-						and not ni.unit.debuff(t, 48563)
-						and not ni.unit.debuff(t, 46856)
-						and not ni.unit.debuff(t, 46857)
-						and not ni.unit.debuff(t, 55218) then
+						and ni.unit.inmelee(p, t)
+						and ni.unit.debuffremaining(t, spells.Manglecat.id) < 3
+						and ni.unit.debuffremaining(t, 48563) < 3
+						and ni.unit.debuffremaining(t, 46856) < 1
+						and ni.unit.debuffremaining(t, 46857) < 1
+						and ni.unit.debuffremaining(t, 55218) < 1
+				then
 					ni.spell.cast(spells.Manglecat.id)
 				end
 			end
@@ -783,17 +850,25 @@ if wotlk then
 			end
 		end,
 		["Ferocious Bite"] = function()
-			if ni.spell.available(spells.FerociusBite.id)
-					and GetComboPoints("player", "target") == 5
-					and Cache.savagertimer >= 8
-					and Cache.riptimer >= 10 then
-				ni.spell.cast(spells.FerociusBite.id)
+			if GetComboPoints("player", "target") == 5
+					and ni.spell.available(spells.FerociusBite.id)
+			then
+				if ni.player.buff(50334, "EXACT") --Berserk
+						and Cache.savagertimer >= 4
+						and Cache.riptimer >= 4 then
+					ni.spell.cast(spells.FerociusBite.id)
+				else
+					if Cache.savagertimer >= 8
+							and Cache.riptimer >= 10 then
+						ni.spell.cast(spells.FerociusBite.id)
+					end
+				end
 			end
 		end,
 
 		["Ferocious Bite1"] = function()
 			if ni.spell.available(spells.FerociusBite.id)
-					and ni.unit.hp("target") < 30
+					and ni.unit.hp(t) < 30
 					and not ni.unit.isboss(t)
 					and GetComboPoints("player", "target") >= 4 then
 				ni.spell.cast(spells.FerociusBite.id)
@@ -874,7 +949,7 @@ if wotlk then
 
 		["SavageRoar"] = function()
 			if enables["Automated"] then
-				if ni.player.buff(spells.CatForm.id)
+				if Cache.cat
 						and Cache.savagertimer == 0
 						and GetComboPoints("player", "target") > 1
 				then
@@ -885,11 +960,10 @@ if wotlk then
 		["Ingrediente Secreto"] = function()
 			if enables["Automated"] then
 				if cat then
-					if ni.spell.available(spells.SavageRoar.id)
-							and GetComboPoints("player", "target") >= 2
-							and Cache.savagertimer <= 6                                       -- this is savage
-							and ni.unit.debuffremaining("target", spells.Rip.id, "player") <= 8 -- this is rip
-							and ni.unit.debuffremaining("target", spells.Rip.id, "player") >= 4 then -- rip
+					if GetComboPoints("player", "target") >= 2
+							and Cache.savagertimer <= 9
+							and math.abs(Cache.savagertimer - Cache.riptimer) < 4 -- this is savage
+							and Cache.riptimer >= 5 then
 						ni.spell.cast(spells.SavageRoar.id, "target")
 						return true;
 					end
@@ -909,17 +983,21 @@ if wotlk then
 		-- end,
 		["WILD"] = function()
 			if enables["CCBuff"] then
-				if ni.spell.available(spells.CatForm.id)
-						-- and not ni.spell.gcd()	
+				if Cache.cat
+						and not ni.spell.gcd()
 						and ni.player:power(3) < 30
-						and ni.spell.cd(spells.TigersFury.id) > 1
+						and ni.spell.cd(spells.TigersFury.id) > 3
 						-- and not ni.player.buff(53909)
 						-- and not ni.player.buff(54758)
 						and not ni.player.buff(50334, "EXACT") --Berserk
 						and not ni.player.buff(16870)    -- Clear casting
-						-- and GetComboPoints("player", "target") < 5
+						and GetComboPoints("player", "target") < 5
 						and ni.player.power("mana") >= 40
 				then
+					ni.spell.cast(spells.GOTW.id)
+					ni.player.runtext("/stopattack")
+					local _, gcdDuration = GetSpellCooldown(61304)
+					ni.rotation.delay(gcdDuration)
 					ni.player.runtext("/use !cat form")
 					-- ni.spell.cast(spells.CatForm.id)
 					-- print("Shapshift")
@@ -931,15 +1009,22 @@ if wotlk then
 
 		["Rip"] = function()
 			if enables["Automated"] then
-				if ni.player.buff(spells.CatForm.id)
-						and not ni.unit.debuff(t, spells.Rip.id, p)
+				if Cache.cat
 						and GetComboPoints("player", "target") > 4
 				then
-					ni.spell.cast(spells.Rip.id, "target")
+					if not Cache.berserk
+							and Cache.riptimer == 0
+					then
+						ni.spell.cast(spells.Rip.id, "target")
+					else
+						if Cache.riptimer < 3
+						then
+							ni.spell.cast(spells.Rip.id, "target")
+						end
+					end
 				end
 			end
 		end,
-
 		["SwipeBear"] = function()
 			if ni.vars.combat.aoe then
 				local enemies = ni.unit.enemiesinrange("player", 8)
@@ -1015,13 +1100,23 @@ if wotlk then
 				ni.spell.cast(spells.FaerieFire.id, "target")
 			end
 		end,
-		-- ["AbolishPoison"] = function()
-		--     if ni.spel
-
-
+		["PrePull"] = function()
+			if enables["CCBuff"] then
+				local remainingTime = CheckPullInTimerRemaining() -- Asegúrate de llamar a la función con ()
+				if remainingTime and remainingTime < 10
+						and remainingTime > 2 then
+					if not ni.player.buff(16870) -- Clear casting
+					then
+						ni.spell.cast(spells.GOTW.id)
+					else
+						ni.spell.cast(spells.CatForm.id)
+					end
+				end
+			end
+		end
 	}
 
-	ni.bootstrap.profile("Dalvae Feral - Wotlk", queue, abilities, onload, onunload)
+	ni.bootstrap.profile("DalvaeFeral-Wotlk", queue, abilities, onload, onunload)
 end
 
 -- #showtooltip Feral Charge
@@ -1032,8 +1127,6 @@ end
 -- TOdO
 -----------------------------------------------------------------
 --Gui
--- Mejorar el shred behind, todavia hay bosses donde lanza mangle
--- Mejorar el clearcasting, hay errores cuando hay 5 puntos de combo
 -- Crear la rotacion de Burst y GG
 -- Mejorar Feral Charge, hacer un interrupter
 -- Auto matar snakes.

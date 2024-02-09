@@ -15,8 +15,8 @@ if wotlk then
 		{ type = "separator" },
 		{
 			type = "entry",
-			text = ni.spell.icon(33891) .. " Auto Form",
-			tooltip = "Auto use proper form.",
+			text = ni.spell.icon(33891) .. " Auto Forma",
+			tooltip = "Usar la forma automatica.",
 			enabled = true,
 			key =
 			"autoform"
@@ -25,7 +25,7 @@ if wotlk then
 			type = "entry",
 			text = ni.spell.icon(52674) .. " Auto Buff",
 			tooltip =
-			"Enable Auto Buff player/ally.",
+			"Enable auto bufos",
 			enabled = true,
 			key =
 			"AutoBuff"
@@ -43,14 +43,14 @@ if wotlk then
 			type = "page",
 			number = 2,
 			text =
-			"|cff95f900CD's and important spells|r"
+			"|cff95f900CD's y hechizos importante|r"
 		},
 		{ type = "separator" },
 		{
 			type = "entry",
 			text = ni.spell.icon(18562) .. " Swiftmend",
 			tooltip =
-			"Use spell when ally |cff00D700HP|r < %.",
+			"Usar spell cuando un aliado |cff00D700HP|r < %.",
 			enabled = true,
 			value = 60,
 			min = 10,
@@ -64,7 +64,7 @@ if wotlk then
 			type = "entry",
 			text = ni.spell.icon(17116) .. " Nature's Swiftness",
 			tooltip =
-			"Use spell when ally |cff00D700HP|r < %.\nWith Nature Swiftness also will be used [Healing Touch].",
+			"Usar spell cuando el procentaje|cff00D700HP|r < %.\n se usara h[Healing Touch].",
 			enabled = true,
 			value = 40,
 			min = 10,
@@ -79,7 +79,7 @@ if wotlk then
 			type = "entry",
 			text = ni.spell.icon(48447) .. " Tranquility",
 			tooltip =
-			"Spell will be used when average |cff00D700HP|r\nof specified number allies is lower < %.",
+			"Spell se usara cuando el hp |cff00D700HP|r\nde un especifico numero de aliados < %.",
 			enabled = true,
 			key =
 			"tranquil"
@@ -101,7 +101,7 @@ if wotlk then
 			type = "entry",
 			text = "Tranquility (Ally Count)",
 			tooltip =
-			"Adjust ally count in your party.",
+			"Ajustar el numero de aliados en tu party",
 			value = 4,
 			min = 2,
 			max = 5,
@@ -117,7 +117,7 @@ if wotlk then
 			type = "entry",
 			text = ni.spell.icon(2782) .. " Remove Curse (Ally)",
 			tooltip =
-			"Auto dispel debuffs from ally.",
+			"Auto dispel debuffs de los aliados",
 			enabled = true,
 			key =
 			"removecurse"
@@ -126,7 +126,7 @@ if wotlk then
 			type = "entry",
 			text = ni.spell.icon(2893) .. " Abolish Poison (Ally)",
 			tooltip =
-			"Auto dispel debuffs from ally.",
+			"Auto dispel debuffs de los aliado.",
 			enabled = true,
 			key =
 			"ambolishpoison"
@@ -142,7 +142,7 @@ if wotlk then
 			type = "entry",
 			text = ni.spell.icon(48441) .. " Rejuvenation",
 			tooltip =
-			"Use spell when ally |cff00D700HP|r < %.",
+			"Usar hechizo cuando el aliado|cff00D700HP|r < %.",
 			enabled = true,
 			value = 100,
 			min = 10,
@@ -156,7 +156,7 @@ if wotlk then
 			type = "entry",
 			text = ni.spell.icon(48438) .. " Wild Growth",
 			tooltip =
-			"Use spell when ally |cff00D700HP|r < %.",
+			"Usar hechizo cuando el aliado |cff00D700HP|r < %.",
 			enabled = true,
 			value = 100,
 			min = 10,
@@ -170,7 +170,7 @@ if wotlk then
 			type = "entry",
 			text = ni.spell.icon(50464) .. " Nourish",
 			tooltip =
-			"Use spell when ally |cff00D700HP|r < %.",
+			"Usar hechizo cuando el aliado|cff00D700HP|r < %.",
 			enabled = true,
 			value = 75,
 			min = 10,
@@ -186,7 +186,7 @@ if wotlk then
 			type = "entry",
 			text = ni.spell.icon(2565) .. " Auto Track Tank",
 			tooltip =
-			"Auto Track Tank and mainly heal him.\nDruid support MAIN TANK and OFF TANK.",
+			"Auto track tank y principalmente curarlo.\nDruid support MAIN TANK y OFF TANK.",
 			enabled = true,
 			key =
 			"healtank"
@@ -195,7 +195,7 @@ if wotlk then
 			type = "entry",
 			text = ni.spell.icon(48441) .. " Rejuvenation",
 			tooltip =
-			"Always keeps [Rejuvenation] on Main Tank and Off Tank.",
+			"Siempre tener [Rejuvenation] en el maintank u offtank",
 			enabled = true,
 			key =
 			"rejuTanks"
@@ -204,7 +204,7 @@ if wotlk then
 			type = "entry",
 			text = ni.spell.icon(50464) .. " Nourish",
 			tooltip =
-			"Use spell when tanks |cff00D700HP|r < %.",
+			"Usar hechizo cuando los tankes |cff00D700HP|r < %.",
 			enabled = true,
 			value = 70,
 			min = 10,
@@ -214,13 +214,13 @@ if wotlk then
 			key =
 			"nouriTanks"
 		},
-		{ type = "page",     number = 5, text = "|cff00C957Defensive Settings" },
+		{ type = "page",     number = 5, text = "|cff00C957Defensivo Settings" },
 		{ type = "separator" },
 		{
 			type = "entry",
 			text = ni.spell.icon(22812) .. " Barkskin",
 			tooltip =
-			"Use spell when player |cff00D700HP|r < %.",
+			"Usar el hechizo ccuando |cff00D700HP|r < %.",
 			enabled = true,
 			value = 40,
 			min = 15,
@@ -350,16 +350,17 @@ if wotlk then
 		"Barkskin",
 		"Combat Specific Pause",
 		"Tree of Life",
-		"Nature's Swiftness",
+		-- "Nature's Swiftness",
 		"Swiftmend",
 		"Wild Growth",
-		"Tank Heal",
+		-- "Tank Heal",
 		-- "Infinitemana",
-		"Regrowth",
-		"Rejuvenation",
-		"Remove Curse (Ally)",
-		"Abolish Poison (Ally)",
-		"Nourish",
+		-- "Regrowth",
+		"Rejuvenationall",
+		-- "Rejuvenation",
+		-- "Remove Curse (Ally)",
+		-- "Abolish Poison (Ally)",
+		-- "Nourish",
 	};
 	local abilities = {
 		-----------------------------------
@@ -584,23 +585,27 @@ if wotlk then
 		-----------------------------------
 		["Swiftmend"] = function()
 			local value, enabled = GetSetting("swift");
-			if not enabled then
+			if not enabled or not ni.spell.available(spells.Swiftmend) then
 				return false;
 			end
-			if ni.spell.available(spells.Swiftmend) then
-				for i = 1, #ni.members do
-					local ally = ni.members[i];
-					if ally:hp() <= value
-							and ally.auras(spells.Rejuvenation .. "||" .. spells.Regrowth)
-							and ally:valid(ally, spells.Swiftmend, false, true)
+			for i = 1, #ni.members do
+				local ally = ni.members[i];
+				if ally:hp() <= value then
+					local hasRejuv = ally:buff(spells.Rejuvenation);
+					local hasRegrowth = ally:buff(spells.Regrowth);
+					-- if ally.auras(spells.Rejuvenation .. "||" .. spells.Regrowth)
+					if (hasRejuv or hasRegrowth)
+							and ni.spell.valid(ally.unit, spells.Swiftmend, false, true, true)
 					then
-						print("TESTFINAL")
+						print("Casting Swiftmend on", ally.unit) -- Para fines de depuración
 						ni.spell.cast(spells.Swiftmend, ally.unit)
 						return true;
 					end
 				end
 			end
 		end,
+
+
 		-----------------------------------
 		["Nature's Swiftness"] = function()
 			local value, enabled = GetSetting("natureswift");
@@ -746,6 +751,24 @@ if wotlk then
 			end
 		end,
 		-----------------------------------	
+		["Rejuvenationall"] = function()
+			local value, enabled = GetSetting("rejuall");
+			if not enabled then
+				return false;
+			end
+			if UsableSilence(spells.Rejuvenation) then
+				-- Revisa miembros desde el grupo 5 al 1 para aplicar Rejuvenation
+				for subgroup = 5, 1, -1 do -- Empieza desde el grupo 5 y ve hacia atrás hasta el 1
+					for i = 1, #ni.members do
+						local member = ni.members[i];
+						if member.subgroup == subgroup and member:hp() <= value and not member:buff(spells.Rejuvenation, "player") and member:valid(spells.Rejuvenation, false, true) then
+							ni.spell.cast(spells.Rejuvenation, member.unit);
+							return true; -- Detiene la iteración después de lanzar para asegurar prioridad
+						end
+					end
+				end
+			end
+		end,
 		["Nourish"] = function()
 			local value, enabled = GetSetting("nourish");
 			if not enabled
@@ -780,17 +803,13 @@ if wotlk then
 		end,
 		-----------------------------------	
 		["Wild Growth"] = function()
-			local value, enabled = GetSetting("growth");
-			if not enabled
-					or not UsableSilence(spells.WildGrowth) then
+			if not UsableSilence(spells.WildGrowth) then
 				return false;
 			end
-			local allyOne = ni.members[1];
-			local ally = ni.members.inrangewithoutbuffbelow(allyOne.unit, 14, spells.WildGrowth, value);
-			if #ally >= 3
-					-- and allyOne:hp() <= value
-					and allyOne:valid(spells.WildGrowth, false, true) then
-				ni.spell.cast(spells.WildGrowth, allyOne.unit)
+			-- Encuentra el mejor objetivo para Wild Growth
+			local target = ni.members.sort(function(a, b) return a.hp < b.hp end)[1];
+			if target and target:valid(spells.WildGrowth, false, true) then
+				ni.spell.cast(spells.WildGrowth, target.unit)
 				return true;
 			end
 		end,
