@@ -492,25 +492,31 @@ if wotlk then
 		end,
 		["Catform"] = function()
 			if enables["CatForm"] and not IsMounted() then
-				local hasProtectorTalent = select(5, GetTalentInfo(2, 22))
-				if hasProtectorTalent > 2
+				-- 		local hasProtectorTalent = select(5, GetTalentInfo(2, 22))
+				-- 		if hasProtectorTalent > 2
+				-- 		then
+				-- 			if not Cache.bear
+				-- 					and not Cache.cat
+				-- 			then
+				-- 				ni.spell.cast(spells.BearForm.id)
+				-- 			end
+				-- 		else
+				-- 			if not Cache.cat
+				-- 					and not Cache.bear
+				-- 					and ni.player.hp() > 85
+				-- 			then
+				-- 				ni.spell.cast(spells.CatForm.id)
+				-- 			end
+				-- 		end
+				-- 	end
+				-- end,
+
+				if not Cache.cat
 				then
-					if not Cache.bear
-							and not Cache.cat
-					then
-						ni.spell.cast(spells.BearForm.id)
-					end
-				else
-					if not Cache.cat
-							and not Cache.bear
-							and ni.player.hp() > 85
-					then
-						ni.spell.cast(spells.CatForm.id)
-					end
+					ni.spell.cast(spells.CatForm)
 				end
 			end
 		end,
-
 
 		["INVI"] = function()
 			if enables["Invi"] then

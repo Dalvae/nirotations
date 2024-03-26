@@ -3,7 +3,8 @@ local GetBuildInfo, select, ipairs, pairs, tonumber, GetSpellInfo, IsUsableSpell
 		ni.tanks, UnitInVehicle, UnitIsDeadOrGhost, UnitChannelInfo, UnitCastingInfo
 local build = select(4, GetBuildInfo());
 local wotlk = build == 30300 or false;
-if wotlk then
+if wotlk
+then
 	local AntiAFKTime = 0;
 	local items = {
 		settingsfile = "Dalvae-RestoDruid.json",
@@ -172,7 +173,7 @@ if wotlk then
 			tooltip =
 			"Usar hechizo cuando el aliado|cff00D700HP|r < %.",
 			enabled = true,
-			value = 75,
+			value = 99,
 			min = 10,
 			max = 100,
 			step = 1,
@@ -360,7 +361,7 @@ if wotlk then
 		-- "Rejuvenation",
 		-- "Remove Curse (Ally)",
 		-- "Abolish Poison (Ally)",
-		-- "Nourish",
+		"Nourish",
 	};
 	local abilities = {
 		-----------------------------------
@@ -751,31 +752,56 @@ if wotlk then
 			end
 		end,
 		-----------------------------------	
+		-- ["Rejuvenationall"] = function()
+		-- 	local value, enabled = GetSetting("rejuall");
+		-- 	if not enabled then
+		-- 		return false;
+		-- 	end
+		-- 	if UsableSilence(spells.Rejuvenation) then
+		-- 		-- Revisa miembros desde el grupo 5 al 1 para aplicar Rejuvenation
+		-- 		for subgroup = 5, 1, -1 do -- Empieza desde el grupo 5 y ve hacia atrás hasta el 1
+		-- 			for i = 1, #ni.members do
+		-- 				local member = ni.members[i];
+		-- 				if member.subgroup == subgroup and member:hp() <= value and not member:buff(spells.Rejuvenation, "player") and member:valid(spells.Rejuvenation, false, true) then
+		-- 					ni.spell.cast(spells.Rejuvenation, member.unit);
+		-- 					return true; -- Detiene la iteración después de lanzar para asegurar prioridad
+		-- 				end
+		-- 			end
+		-- 		end
+		-- 	end
+		-- end,
+
 		["Rejuvenationall"] = function()
 			local value, enabled = GetSetting("rejuall");
 			if not enabled then
 				return false;
 			end
 			if UsableSilence(spells.Rejuvenation) then
-				-- Revisa miembros desde el grupo 5 al 1 para aplicar Rejuvenation
-				for subgroup = 5, 1, -1 do -- Empieza desde el grupo 5 y ve hacia atrás hasta el 1
-					for i = 1, #ni.members do
-						local member = ni.members[i];
-						if member.subgroup == subgroup and member:hp() <= value and not member:buff(spells.Rejuvenation, "player") and member:valid(spells.Rejuvenation, false, true) then
-							ni.spell.cast(spells.Rejuvenation, member.unit);
-							return true; -- Detiene la iteración después de lanzar para asegurar prioridad
+				-- Revisa miembros desde el grupo 1 al 5 pero se salta el grupo 4
+				for subgroup = 1, 5 do -- Empieza desde el grupo 1 y avanza hasta el 5
+					if subgroup ~= 4 then -- Se salta el grupo 4
+						for i = 1, #ni.members do
+							local member = ni.members[i];
+							if member.subgroup == subgroup and member:hp() <= value and not member:buff(spells.Rejuvenation, "player") and member:valid(spells.Rejuvenation, false, true) then
+								ni.spell.cast(spells.Rejuvenation, member.unit);
+								return true; -- Detiene la iteración después de lanzar para asegurar prioridad
+							end
 						end
 					end
 				end
 			end
 		end,
+
+
 		["Nourish"] = function()
 			local value, enabled = GetSetting("nourish");
 			if not enabled
 					or cache.IsMoving then
 				return false;
 			end
-			if UsableSilence(spells.Nourish) then
+			if UsableSilence(spells.Nourish)
+					and ni.player.buff(75490) --scale active
+			then
 				for i = 1, #ni.members do
 					local ally = ni.members[i];
 					if ally:hp() <= value
