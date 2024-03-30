@@ -69,7 +69,7 @@ local function OnUnLoad()
 end
 
 local Rotation4T10 = {
-	"Window",	
+		
 	"AutoTarget",
 	"Universal pause",
 	"Inner Fire",
@@ -106,7 +106,7 @@ local Rotation4T10 = {
 	"Mind Flay",
 }
 local StandartRotation = {
-	"Window",
+	
 	"AutoTarget",
 	"Universal pause",
 	"Inner Fire",

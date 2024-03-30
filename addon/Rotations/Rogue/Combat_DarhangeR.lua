@@ -55,7 +55,7 @@ local function OnUnLoad()
 end
 
 local EviscerateBuild = {
-	"Window",
+	
 	"Universal pause",
 	"AutoTarget",
 	"Poison Weapon",
@@ -78,7 +78,7 @@ local EviscerateBuild = {
 	"Eviscerate",
 }
 local RaptureBuild = {
-	"Window",
+	
 	"Universal pause",
 	"AutoTarget",
 	"Poison Weapon",

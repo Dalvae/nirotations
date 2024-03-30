@@ -79,7 +79,7 @@ local function OnUnLoad()
 end
 
 local queue = {
-	"Window",	
+		
 	"Universal pause",
 	"Inner Fire",
 	"Prayer of Fortitude",

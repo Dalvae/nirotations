@@ -90,7 +90,7 @@ local function OnUnLoad()
 end
 
 local RenewBuildActive = {
-	"Window",
+	
 	"Universal pause",
 	"Inner Fire",
 	"Prayer of Fortitude",
@@ -122,7 +122,7 @@ local RenewBuildActive = {
 	"Renew (All Members)",
 }
 local SerenBuildACtive = {
-	"Window",	
+		
 	"Universal pause",
 	"Inner Fire",
 	"Prayer of Fortitude",

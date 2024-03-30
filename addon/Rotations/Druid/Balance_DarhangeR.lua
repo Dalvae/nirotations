@@ -57,7 +57,7 @@ if build == 30300 and level == 80 and data then
 	end
 
 	local queue = {
-		-- "Window",
+		-- 
 		"Universal pause",
 		"AutoTarget",
 		"Gift of the Wild",

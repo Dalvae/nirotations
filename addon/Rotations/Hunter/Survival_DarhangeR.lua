@@ -71,7 +71,7 @@ local function OnUnLoad()
 	ni.GUI.DestroyFrame("Survival_DarhangeR");
 end
 local queue = {
-	"Window",
+	
 	"Cancel Deterrence",
 	"Universal pause",
 	"AutoTarget",

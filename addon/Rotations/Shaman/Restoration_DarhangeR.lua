@@ -74,7 +74,7 @@ local function OnUnLoad()
 end
 
 local queue = {
-	"Window",
+	
 	"Universal pause",
 	"Enchant Weapon",
 	"Water Shield",

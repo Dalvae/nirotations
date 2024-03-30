@@ -68,7 +68,7 @@ local function OnUnLoad()
 end
 
 local queue = {
-	"Window",	
+		
 	"AutoTarget",
 	"Universal pause",
 	"Arcane Brilliance",

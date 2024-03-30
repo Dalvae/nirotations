@@ -2188,6 +2188,7 @@
 		"GameTooltip",
 		"Minimap",
 		"C_PetBattles",
-		"C_PetJournal"
+		"C_PetJournal",
+		"MainMenuBar"
 	]
 }

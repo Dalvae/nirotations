@@ -70,7 +70,7 @@ local function OnUnLoad()
 end
 
 local queue = {
-	"Window",
+	
 	"Cancel Deterrence",
 	"Universal pause",
 	"AutoTarget",

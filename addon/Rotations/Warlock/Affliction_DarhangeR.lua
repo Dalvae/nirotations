@@ -77,7 +77,7 @@ end
 
 
 local queue = {	
-	"Window",	
+		
 	"AutoTarget",
 	"Universal pause",
 	"Life Tap (Regen)",
