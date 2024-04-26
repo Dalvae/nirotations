@@ -10,16 +10,20 @@ healing.debufftoblacklist = function(id)
 	end
 end;
 healing.dontdispel = function(t)
-	for i = 1, #ni.tables.blacklisteddispels do
-		local blacklisted = ni.tables.blacklisteddispels[i]
-		local debuff = ni.unit.debuff(t, blacklisted)
-		if debuff then
-			local debufftype = select(5, UnitDebuff(t, debuff))
-
-			if healing.debufftypedispellable(debufftype) then
-				return true;
+	if ni.vars.build == 30300 then -- Verificar si es la versión de WotLK
+			for i = 1, #ni.tables.blacklisteddispels do
+					local blacklisted = ni.tables.blacklisteddispels[i]
+					local debuff = ni.unit.debuff(t, blacklisted)
+					if debuff then
+							local debufftype = select(5, UnitDebuff(t, debuff))
+							if healing.debufftypedispellable(debufftype) then
+									return true;
+							end
+					end
 			end
-		end
+	else -- Para otras versiones del juego
+			-- Lógica alternativa o comportamiento predeterminado
+			-- Puedes dejar esta parte vacía si no necesitas una lógica específica para otras versiones
 	end
 	return false;
 end;
