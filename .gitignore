@@ -1,0 +1,13 @@
+settings.json
+*.exe
+*.dll
+*.json
+*.xml
+*.bin
+*.toc
+msedge.dxvk-cache
+.vscode/settings.json
+nirotations.zip
+.aider*
+.env
+/wotlk-meshes
