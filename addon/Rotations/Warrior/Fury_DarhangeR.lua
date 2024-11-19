@@ -102,6 +102,7 @@ if build == 30300 and level == 80 and data then
 		whirlwind = { id = 1680, name = "Whirlwind" },
 		heroicthrow = { id = 57755, name = "Heroic Throw" },
 		bloodthirst = { id = 23881, name = "Bloodthirst" },
+		deathWish = { id = 12292, name = "Death Wish" },
 
 
 		--Stances
@@ -661,10 +662,8 @@ if build == 30300 and level == 80 and data then
 		end,
 		-----------------------------------
 		["Use enginer gloves"] = function()
-			local _, enabled = GetSetting("detect")
 			if ni.player.slotcastable(10)
-					and ni.player.itemready(44931)
-					and ni.spell.cd(12292) > 60
+					and ni.spell.cd(spells.deathWish.id) > 60
 					and ni.player.slotcd(10) == 0
 			then
 				ni.player.useinventoryitem(10)
@@ -695,7 +694,6 @@ if build == 30300 and level == 80 and data then
 			if enabled
 					and ni.spell.shouldinterrupt("target")
 					and ni.spell.available(6552)
-					and GetTime() - data.LastInterrupt > 9
 					and ni.spell.valid("target", 6552, true, true)
 					and (ni.unit.castingpercent("target") > 80
 						or ni.unit.ischanneling("target"))
@@ -724,9 +722,9 @@ if build == 30300 and level == 80 and data then
 			if data.CDorBoss("target", 5, 35, 5, enabled)
 					and sunder
 					and count > 4
-					and ni.spell.available(12292)
+					and ni.spell.available(spells.deathWish.id)
 					and data.warrior.InRange() then
-				ni.spell.cast(12292)
+				ni.spell.cast(spells.deathWish.id)
 				return true
 			end
 		end,
