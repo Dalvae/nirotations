@@ -329,7 +329,7 @@ then
 		-- "Rejuvenationall",
 		-- "RejuvenationallInverse",
 		"Rejuvenation",
-		-- "Regrowth",
+		"Regrowth",
 		"Remove Curse (Ally)",
 		"Abolish Poison (Ally)",
 		"Nourish",
