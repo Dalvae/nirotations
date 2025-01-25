@@ -18,6 +18,7 @@ if cata then
 		"POMlow",
 		"PenanceLow",
 		"MassDispel",
+		"DefensiveDispelpriority",
 		"Lookatcasting",
 		"PrayerOfMendingMyself",
 		"RenewMe",
@@ -70,6 +71,7 @@ if cata then
 		DevouringPlague = { id = 2944, name = GetSpellInfo(2944) },
 		PrayerofShadowProtection = { id = 27683, name = GetSpellInfo(27683) },
 		ShadowFiend = { id = 34433, name = GetSpellInfo(34433) },
+		MassDispel = { id = 32375, name = GetSpellInfo(32375) },
 	}
 
 	local values = {
@@ -138,6 +140,7 @@ if cata then
 		1126, -- Mark of the Wild
 		774, -- Rejuvenation
 		467, -- Thorns
+		-- Feral swiftness Missing
 		-- Mage
 		1459, -- Arcane Brilliance
 		7302, -- Ice Armor
@@ -149,12 +152,24 @@ if cata then
 
 	}
 	local priorityccbuffs = {
-		5782, -- fear Warlock
-		118, -- Poly Sheep.
 		853, -- Hammer of justice
 		6770, -- Sap
 		2094, -- Blind
-
+		-- Mage debuffs
+		11129, -- Combustion
+		118, -- Poly
+		28272, -- Poly
+		61305, -- Poly
+		61721, -- Poly
+		61025, -- Poly
+		61780, -- Poly
+		28271, -- Poly
+		-- Shadow
+		34914, -- Vampiric Touch
+		--Warlock
+		6789, -- Deathcoil
+		5484, -- Fear2
+		5782, -- fear Warlock
 
 	}
 	local Cache = {
@@ -353,7 +368,7 @@ if cata then
 					-- and ni.spell.valid(spells.HolyFire, Cache.targets[i].guid, false, true, true)
 					then
 						print("dispel")
-						ni.spell.castat(32375, Cache.targets[i].guid)
+						ni.spell.castat(spells.MassDispel.id, Cache.targets[i].guid)
 						return true
 					end
 				end
@@ -601,12 +616,14 @@ if cata then
 			end
 		end,
 		["DOTS"] = function()
-			if ni.player.los(t) then
-				if not ni.unit.debuff("target", spells.ShadowWordPain.id, "player") then
-					ni.spell.cast(spells.ShadowWordPain.id, "target")
-				else
-					if not ni.unit.debuff("target", spells.DevouringPlague.id, "player") then
-						ni.spell.cast(spells.DevouringPlague.id, "target")
+			if ni.vars.combat.cd then
+				if ni.player.los(t) then
+					if not ni.unit.debuff("target", spells.ShadowWordPain.id, "player") then
+						ni.spell.cast(spells.ShadowWordPain.id, "target")
+					else
+						if not ni.unit.debuff("target", spells.DevouringPlague.id, "player") then
+							ni.spell.cast(spells.DevouringPlague.id, "target")
+						end
 					end
 				end
 			end
