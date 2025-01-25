@@ -103,14 +103,14 @@ if cata then
 	local items = {
 		settingsfile = "dalvae_discopvp_cata.xml",
 		callback = GUICallback,
-		{ type = "title", text = "|cff00ccffDalvae Disco PvP" },
+		{ type = "title",    text = "|cff00ccffDalvae Disco PvP" },
 		{ type = "separator" },
-		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(527))..":26:26\124t Defensive Dispel", tooltip = "Auto dispel harmful effects on allies", enabled = enables["DefensiveDispel"], key = "DefensiveDispel" },
-		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(527))..":26:26\124t Offensive Dispel", tooltip = "Auto dispel beneficial effects on enemies", enabled = enables["OffensiveDispel"], key = "OffensiveDispel" },
-		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(32375))..":26:26\124t Mass Dispel", tooltip = "Use Mass Dispel on Divine Shield/Ice Block", enabled = enables["MassDispel"], key = "MassDispel" },
-		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(139))..":26:26\124t Auto Renew Self", tooltip = "Keep Renew on yourself", enabled = enables["RenewSelf"], key = "RenewSelf" },
-		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(589))..":26:26\124t DoTs on Target", tooltip = "Maintain DoTs on current target", enabled = enables["DotsOnTarget"], key = "DotsOnTarget" },
-		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(17))..":26:26\124t Shield Self", tooltip = "Keep Power Word: Shield on yourself", enabled = enables["ShieldSelf"], key = "ShieldSelf" },
+		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(527)) .. ":26:26\124t Defensive Dispel", tooltip = "Auto dispel harmful effects on allies",  enabled = enables["DefensiveDispel"], key = "DefensiveDispel" },
+		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(527)) .. ":26:26\124t Offensive Dispel", tooltip = "Auto dispel beneficial effects on enemies", enabled = enables["OffensiveDispel"], key = "OffensiveDispel" },
+		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(32375)) .. ":26:26\124t Mass Dispel", tooltip = "Use Mass Dispel on Divine Shield/Ice Block", enabled = enables["MassDispel"],     key = "MassDispel" },
+		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(139)) .. ":26:26\124t Auto Renew Self", tooltip = "Keep Renew on yourself",                  enabled = enables["RenewSelf"],       key = "RenewSelf" },
+		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(589)) .. ":26:26\124t DoTs on Target", tooltip = "Maintain DoTs on current target",          enabled = enables["DotsOnTarget"],    key = "DotsOnTarget" },
+		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(17)) .. ":26:26\124t Shield Self",   tooltip = "Keep Power Word: Shield on yourself",        enabled = enables["ShieldSelf"],      key = "ShieldSelf" },
 	}
 	local function LosCast(spell, tar)
 		if ni.player.los(tar) and IsSpellInRange(spell, tar) == 1 then
@@ -146,7 +146,7 @@ if cata then
 		print("Rotation \124cFF15E615Dalvae Disco pvp")
 		ni.GUI.AddFrame("Dalvae Disco PvP", items)
 	end
-	
+
 	local function OnUnload()
 		ni.combatlog.unregisterhandler("Dalvae Disco")
 		print("Rotation \124cFFE61515stopped!")
@@ -297,8 +297,8 @@ if cata then
 		["PenanceAttornament"] = function()
 			if ni.vars.combat.cd
 					and not Cache.moving
-					and ni.spell.cd(spells.Penance.id) == 0
-					and ni.spell.valid(spells.Penance.id, t, false, true, false)
+					and ni.spell.cd(spells.Penance.id) < 0.2
+					and ni.spell.valid(spells.Penance.name, t, false, true, false)
 					and
 					LosCastStand(spells.Penance.name, t)
 			then
@@ -658,8 +658,8 @@ if cata then
 		["ShieldSelf"] = function()
 			if enables["ShieldSelf"] then
 				if not ni.player.debuff(6788) -- Weakened Soul
-					and not ni.player.buff(17) -- Power Word: Shield
-					and ni.spell.available(spells.PowerWordShield.id) then
+						and not ni.player.buff(17) -- Power Word: Shield
+						and ni.spell.available(spells.PowerWordShield.id) then
 					ni.spell.cast(spells.PowerWordShield.id, "player")
 					return true
 				end
