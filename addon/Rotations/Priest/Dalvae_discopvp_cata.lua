@@ -74,7 +74,40 @@ if cata then
 		MassDispel = { id = 32375, name = GetSpellInfo(32375) },
 	}
 
+	local enables = {
+		["DefensiveDispel"] = true,
+		["OffensiveDispel"] = true,
+		["MassDispel"] = true,
+		["RenewSelf"] = true,
+		["DotsOnTarget"] = true,
+	}
 	local values = {
+	}
+	local inputs = {}
+	local menus = {}
+
+	local function GUICallback(key, item_type, value)
+		if item_type == "enabled" then
+			enables[key] = value
+		elseif item_type == "value" then
+			values[key] = value
+		elseif item_type == "input" then
+			inputs[key] = value
+		elseif item_type == "menu" then
+			menus[key] = value
+		end
+	end
+
+	local items = {
+		settingsfile = "dalvae_discopvp_cata.xml",
+		callback = GUICallback,
+		{ type = "title", text = "|cff00ccffDalvae Disco PvP" },
+		{ type = "separator" },
+		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(527))..":26:26\124t Defensive Dispel", tooltip = "Auto dispel harmful effects on allies", enabled = enables["DefensiveDispel"], key = "DefensiveDispel" },
+		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(527))..":26:26\124t Offensive Dispel", tooltip = "Auto dispel beneficial effects on enemies", enabled = enables["OffensiveDispel"], key = "OffensiveDispel" },
+		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(32375))..":26:26\124t Mass Dispel", tooltip = "Use Mass Dispel on Divine Shield/Ice Block", enabled = enables["MassDispel"], key = "MassDispel" },
+		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(139))..":26:26\124t Auto Renew Self", tooltip = "Keep Renew on yourself", enabled = enables["RenewSelf"], key = "RenewSelf" },
+		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(589))..":26:26\124t DoTs on Target", tooltip = "Maintain DoTs on current target", enabled = enables["DotsOnTarget"], key = "DotsOnTarget" },
 	}
 	local function LosCast(spell, tar)
 		if ni.player.los(tar) and IsSpellInRange(spell, tar) == 1 then
@@ -108,13 +141,13 @@ if cata then
 	local function OnLoad()
 		ni.combatlog.registerhandler("Dalvae Disco", CombatEventCatcher)
 		print("Rotation \124cFF15E615Dalvae Disco pvp")
-		-- ni.GUI.AddFrame("Tapto Disco", items)
+		ni.GUI.AddFrame("Dalvae Disco PvP", items)
 	end
-	;
+	
 	local function OnUnload()
 		ni.combatlog.unregisterhandler("Dalvae Disco")
 		print("Rotation \124cFFE61515stopped!")
-		-- ni.GUI.DestroyFrame("Tapto Disco")
+		ni.GUI.DestroyFrame("Dalvae Disco PvP")
 	end
 
 	local t, p = "target", "player"
@@ -360,16 +393,16 @@ if cata then
 
 
 		["MassDispel"] = function()
-			local buffdispe = { 642, 45438 } -- Divine Shield, Ice Block
-			for d = 1, #buffdispe do
-				for i = 1, #Cache.targets do
-					if ni.unit.buff(Cache.targets[i].guid, buffdispe[d])
-							and not ni.player.ismoving()
-					-- and ni.spell.valid(spells.HolyFire, Cache.targets[i].guid, false, true, true)
-					then
-						print("dispel")
-						ni.spell.castat(spells.MassDispel.id, Cache.targets[i].guid)
-						return true
+			if enables["MassDispel"] then
+				local buffdispe = { 642, 45438 } -- Divine Shield, Ice Block
+				for d = 1, #buffdispe do
+					for i = 1, #Cache.targets do
+						if ni.unit.buff(Cache.targets[i].guid, buffdispe[d])
+								and not ni.player.ismoving()
+						then
+							ni.spell.castat(spells.MassDispel.id, Cache.targets[i].guid)
+							return true
+						end
 					end
 				end
 			end
@@ -393,11 +426,13 @@ if cata then
 		end,
 
 		["DefensiveDispelpriority"] = function()
-			for i = 1, #Cache.members do
-				for _, v in pairs(priorityccbuffs) do
-					if ni.player.los(Cache.members[i].guid)
-							and ni.unit.debuff(Cache.members[i].guid, v) then
-						ni.spell.cast(spells.dispelmagic.id, Cache.members[i].guid)
+			if enables["DefensiveDispel"] then
+				for i = 1, #Cache.members do
+					for _, v in pairs(priorityccbuffs) do
+						if ni.player.los(Cache.members[i].guid)
+								and ni.unit.debuff(Cache.members[i].guid, v) then
+							ni.spell.cast(527, Cache.members[i].guid)
+						end
 					end
 				end
 			end
@@ -513,11 +548,13 @@ if cata then
 			end
 		end,
 		["RenewMe"] = function()
-			if ni.player.power("mana") > 45
-					and ni.player.hp() <= 80
-					and not ni.player.buff(139)
-			then
-				ni.spell.cast(139, p)
+			if enables["RenewSelf"] then
+				if ni.player.power("mana") > 45
+						and ni.player.hp() <= 80
+						and not ni.player.buff(139)
+				then
+					ni.spell.cast(139, p)
+				end
 			end
 		end,
 
@@ -616,7 +653,7 @@ if cata then
 			end
 		end,
 		["DOTS"] = function()
-			if ni.vars.combat.cd then
+			if enables["DotsOnTarget"] then
 				if ni.player.los(t) then
 					if not ni.unit.debuff("target", spells.ShadowWordPain.id, "player") then
 						ni.spell.cast(spells.ShadowWordPain.id, "target")
