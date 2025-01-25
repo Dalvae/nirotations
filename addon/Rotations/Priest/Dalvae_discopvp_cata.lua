@@ -298,7 +298,7 @@ if cata then
 			if ni.vars.combat.cd
 					and not Cache.moving
 					and ni.spell.cd(spells.Penance.id) < 0.2
-					and ni.spell.valid(spells.Penance.name, t, false, true, false)
+					and ni.spell.valid(t, spells.Penance.id, false, true, false)
 					and
 					LosCastStand(spells.Penance.name, t)
 			then
