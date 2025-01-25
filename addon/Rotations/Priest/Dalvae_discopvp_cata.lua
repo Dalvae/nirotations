@@ -301,9 +301,10 @@ if cata then
 			if ni.vars.combat.cd
 					and not Cache.moving
 					and ni.spell.cd(spells.Penance.id) < 0.2
+					and UnitExists(t)
+					and UnitCanAttack("player", t)
 					and ni.spell.valid(t, spells.Penance.id, false, true, false)
-					and
-					LosCastStand(spells.Penance.name, t)
+					and LosCastStand(spells.Penance.name, t)
 			then
 				return true
 			end
@@ -325,6 +326,8 @@ if cata then
 					and not ni.player.ismoving()
 					and ni.spell.cd(spells.HolyFire.id) == 0
 					and ni.player.los(t)
+					and UnitExists(t)
+					and UnitCanAttack("player", t)
 					and LosCast(spells.HolyFire.name, t)
 			then
 				return true
@@ -334,6 +337,8 @@ if cata then
 			if ni.vars.combat.cd
 					and not ni.player.ismoving()
 					and ni.player.los(t)
+					and UnitExists(t)
+					and UnitCanAttack("player", t)
 					and LosCast(spells.Smite.name, t)
 			then
 				return true
@@ -343,6 +348,8 @@ if cata then
 			if ni.vars.combat.cd
 					and not ni.player.ismoving()
 					and ni.player.los(t)
+					and UnitExists(t)
+					and UnitCanAttack("player", t)
 					and LosCast(spells.MindBlast.name, t)
 			then
 				return true
