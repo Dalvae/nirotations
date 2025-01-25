@@ -123,7 +123,6 @@ if cata then
 		79101, -- Blessing of Might
 		53563, -- Beacon of Light
 		1022, -- Hand Of protection
-
 		-- Priest
 		17,  -- Power Word: Shield
 		139, -- Renew
@@ -139,7 +138,6 @@ if cata then
 		1126, -- Mark of the Wild
 		774, -- Rejuvenation
 		467, -- Thorns
-		--
 		-- Mage
 		1459, -- Arcane Brilliance
 		7302, -- Ice Armor
@@ -247,7 +245,7 @@ if cata then
 		end,
 		["PenanceAttornament"] = function()
 			if ni.vars.combat.cd
-					and not cache.moving
+					and not Cache.moving
 					and ni.spell.cd(spells.Penance.id) == 0
 					and ni.spell.valid(spells.Penance.id, t, false, true, false)
 					and

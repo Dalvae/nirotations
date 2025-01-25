@@ -47,8 +47,8 @@ local vars = {
 		casting = false,
 		queued = false,
 		currentcastend = 0,
-		spellqueueenabled = false,
-		spellqueuems = 0.3
+		spellqueueenabled = true,
+		spellqueuems = 120
 	},
 	interrupts = {
 		whitelisted = {},

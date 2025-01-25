@@ -402,13 +402,13 @@ if wotlk then
 		"Interrupter",
 		"FeralCharge",
 		"Berserkfear",
-		"Antireflect",
-		"Cycloneinterupt",
+		-- "Antireflect",
+		-- "Cycloneinterupt",
 		"CycloneFocus",
 		"Swipe",
 		"Antislow",
-		"DispelHEX",
-		"AbolishPoison",
+		-- "DispelHEX",
+		-- "AbolishPoison",
 		"Ferocious Bite",
 		-- "Ferocious Bite1",
 		-- "Ferocious Bite2",
@@ -448,7 +448,7 @@ if wotlk then
 			Cache.savagertimer = ni.player.buffremaining(spells.SavageRoar.id)
 			Cache.cat = ni.player.buff(spells.CatForm.id)
 			Cache.bear = ni.player.buff(spells.BearForm.id)
-			Cache.berserk = ni.player.buff(50334, "EXACT") --Berserk Rage
+			Cache.berserk = ni.player.buff(50334) --Berserk rage the ulti
 		end,
 
 		["Pounce"] = function()
@@ -504,9 +504,9 @@ if wotlk then
 
 		["INVI"] = function()
 			if enables["Invi"] then
-				if ni.spell.available(spells.Prowl.id)
-						and not UnitAffectingCombat("player")
+				if not UnitAffectingCombat("player")
 						and Cache.cat
+						and ni.spell.available(spells.Prowl.id)
 						and not ni.unit.buff("player", spells.Prowl.id, "player")
 				then
 					ni.spell.cast(spells.Prowl.id)
@@ -541,7 +541,7 @@ if wotlk then
 		["Barkskin"] = function()
 			if ni.spell.available(spells.Barkskin.id)
 					and UnitAffectingCombat("player")
-					and ni.player.hp("player") <= 50 then
+					and ni.player.hp() <= 50 then
 				ni.spell.cast(spells.Barkskin.id)
 			end
 		end,
@@ -549,15 +549,15 @@ if wotlk then
 		["Survival"] = function()
 			if ni.spell.available(spells.SurvivalInstinct.id)
 					and UnitAffectingCombat("player")
-					and ni.player.hp("player") <= 30 then
+					and ni.player.hp() <= 30 then
 				ni.spell.cast(spells.SurvivalInstinct.id)
 			end
 		end,
 
 		["Shreadcc"] = function()
 			if Cache.cat
-					and ni.unit.buffremaining("player", spells.ClearCast.id, "player") >= 1
-					and ni.unit.isbehind("player", "target")
+					and ni.unit.buffremaining(p, spells.ClearCast.id, p) >= 1
+					and ni.unit.isbehind(p, t)
 			then
 				ni.spell.cast(spells.Shred.id)
 			end
@@ -575,7 +575,7 @@ if wotlk then
 		end,
 
 		["Tigers Fury"] = function()
-			if cat
+			if Cache.cat
 					and ni.spell.cd(spells.TigersFury.id) == 0
 					and ni.player:powerraw("energy") < 35 then
 				ni.spell.cast(spells.TigersFury.id)
@@ -585,10 +585,10 @@ if wotlk then
 			if ni.vars.combat.cd
 					and ni.spell.cd(spells.Berserk.id) == 0
 			then
-				if cat
+				if Cache.cat
 						and ni.unit.isboss(t)
 						and ni.player.buffremaining(spells.TigersFury.id) > 4
-						and ni.player.powerraw() > 80
+						and ni.player.powerraw() > 70
 				then
 					ni.spell.cast(spells.Berserk.id)
 					-- ni.player.useitem(40211)
@@ -598,13 +598,13 @@ if wotlk then
 		end,
 
 		["Faerie fire"] = function()
-			if ni.player.buff(spells.CatForm.id)
+			if Cache.cat
 					and ni.spell.available(spells.FaerieFire.id)
-					and not (ni.unit.debuff(t, spells.FaerieFire.id) or ni.unit.debuff(t, "770") or ni.unit.debuff(t, "16857"))
+					-- and not (ni.unit.debuff(t, spells.FaerieFire.id) or ni.unit.debuff(t, "770") or ni.unit.debuff(t, "16857"))
 					and ni.player:power() < 17
 			then
 				print("fuego ferico")
-				ni.spell.cast(spells.FaerieFire.id, "target")
+				ni.spell.cast(spells.FaerieFire.id, t)
 				return true;
 			end
 		end,
@@ -639,7 +639,7 @@ if wotlk then
 
 		["MangleDebuff"] = function()
 			-- if enables["Automated"] then
-			if cat
+			if Cache.cat
 					and ni.unit.inmelee(p, t)
 					and ni.unit.debuffremaining(t, spells.Manglecat.id) < 3
 					and ni.unit.debuffremaining(t, 48563) < 3
@@ -938,7 +938,7 @@ if wotlk then
 			if enables["Automated"] then
 				if Cache.cat
 						and Cache.savagertimer == 0
-						and GetComboPoints("player", "target") > 1
+						and GetComboPoints("player", "target") > 2
 				then
 					ni.spell.cast(spells.SavageRoar.id, "target")
 				end
@@ -988,11 +988,11 @@ if wotlk then
 					if not Cache.berserk
 							and Cache.riptimer == 0
 					then
-						ni.spell.cast(spells.Rip.id, "target")
+						ni.spell.cast(spells.Rip.id, t)
 					else
 						if Cache.riptimer < 3
 						then
-							ni.spell.cast(spells.Rip.id, "target")
+							ni.spell.cast(spells.Rip.id, t)
 						end
 					end
 				end
@@ -1060,29 +1060,31 @@ if wotlk then
 		["Laceratestack"] = function()
 			if Cache.bear
 					and ni.spell.available(spells.Lacerate.id)
-					and ni.unit.debuffstacks("target", spells.Lacerate.id, "player") < 5 then
-				ni.spell.cast(spells.Lacerate.id, "target")
+					and ni.unit.debuffstacks(t, spells.Lacerate.id, p) < 5 then
+				ni.spell.cast(spells.Lacerate.id, p)
 			end
 		end,
 		["FaerieFirebear"] = function()
 			if Cache.bear
 					and ni.spell.available(spells.FaerieFire.id)
-					and ni.unit.exists("target")
-					and UnitCanAttack("player", "target")
+					and ni.unit.exists(t)
+					and UnitCanAttack(p, t)
 			then
-				ni.spell.cast(spells.FaerieFire.id, "target")
+				ni.spell.cast(spells.FaerieFire.id, t)
 			end
 		end,
 		["PrePull"] = function()
 			if enables["CCBuff"] then
-				local remainingTime = CheckPullInTimerRemaining() -- Asegúrate de llamar a la función con ()
-				if remainingTime and remainingTime < 10
+				local remainingTime = CheckPullInTimerRemaining()
+				if remainingTime and remainingTime < 8
 						and remainingTime > 2 then
-					if not ni.player.buff(16870) -- Clear casting
+					if not ni.player.buff(16870)
 					then
 						ni.spell.cast(spells.GOTW.id)
 					else
-						ni.spell.cast(spells.CatForm.id)
+						if not Cache.cat then
+							ni.spell.cast(spells.CatForm.id)
+						end
 					end
 				end
 			end
