@@ -4,6 +4,7 @@ if cata then
 	local queue = {
 		"InnerFire",
 		"Cache",
+		"ShieldSelf",
 		"PowerWordFortitude",
 		"PrayerofShadowProtection",
 		"Drink",
@@ -80,6 +81,7 @@ if cata then
 		["MassDispel"] = true,
 		["RenewSelf"] = true,
 		["DotsOnTarget"] = true,
+		["ShieldSelf"] = true,
 	}
 	local values = {
 	}
@@ -108,6 +110,7 @@ if cata then
 		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(32375))..":26:26\124t Mass Dispel", tooltip = "Use Mass Dispel on Divine Shield/Ice Block", enabled = enables["MassDispel"], key = "MassDispel" },
 		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(139))..":26:26\124t Auto Renew Self", tooltip = "Keep Renew on yourself", enabled = enables["RenewSelf"], key = "RenewSelf" },
 		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(589))..":26:26\124t DoTs on Target", tooltip = "Maintain DoTs on current target", enabled = enables["DotsOnTarget"], key = "DotsOnTarget" },
+		{ type = "entry", text = "\124T"..select(3, GetSpellInfo(17))..":26:26\124t Shield Self", tooltip = "Keep Power Word: Shield on yourself", enabled = enables["ShieldSelf"], key = "ShieldSelf" },
 	}
 	local function LosCast(spell, tar)
 		if ni.player.los(tar) and IsSpellInRange(spell, tar) == 1 then
@@ -652,6 +655,17 @@ if cata then
 				return true
 			end
 		end,
+		["ShieldSelf"] = function()
+			if enables["ShieldSelf"] then
+				if not ni.player.debuff(6788) -- Weakened Soul
+					and not ni.player.buff(17) -- Power Word: Shield
+					and ni.spell.available(spells.PowerWordShield.id) then
+					ni.spell.cast(spells.PowerWordShield.id, "player")
+					return true
+				end
+			end
+		end,
+
 		["DOTS"] = function()
 			if enables["DotsOnTarget"] then
 				if ni.player.los(t) then
