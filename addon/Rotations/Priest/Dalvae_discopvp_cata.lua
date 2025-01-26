@@ -2,7 +2,8 @@ local build = select(4, GetBuildInfo());
 local cata = build == 40300 or false;
 if cata then
 	local queue = {
-		"InnerFire",
+		"DebugHealer",
+		"InnerFire", 
 		"Cache",
 		"ShieldSelf",
 		"PowerWordFortitude",
@@ -219,6 +220,21 @@ if cata then
 		members = ni.members.sort(),
 		targets = ni.unit.enemiesinrange(p, 30),
 	}
+	local function IsHealer(unit)
+	    if not UnitExists(unit) then return false end
+    
+	    local _, class = UnitClass(unit)
+	    local maxMana = UnitPowerMax(unit, 0) -- 0 is for mana
+    
+	    -- Check if unit is a healer class with high mana pool
+	    if (class == "PRIEST" or class == "DRUID" or class == "SHAMAN" or class == "PALADIN") 
+	       and maxMana > 82000 then
+	        return true
+	    end
+    
+	    return false
+	end
+
 	local abilities = {
 		["Cache"] = function()
 			Cache.targets = ni.unit.enemiesinrange(p, 30)
@@ -685,8 +701,8 @@ if cata then
 					for i = 1, #enemies do
 						local target = enemies[i].guid
 						if ni.unit.isplayer(target)
-								and (UnitPowerType(target) == 0 or ni.unit.creaturetype(target) == "Mage") -- Check if uses mana or is mage
-								and ni.unit.power(target, "mana") > 20                             -- Only if they have more than 20% mana
+								and (IsHealer(target) or ni.unit.creaturetype(target) == "Mage")
+								and ni.unit.power(target, "mana") > 20
 								and ni.spell.valid(target, 8129, false, true, true) then
 							ni.spell.cast(8129, target)
 							return true
