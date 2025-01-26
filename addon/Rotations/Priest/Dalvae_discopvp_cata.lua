@@ -374,7 +374,7 @@ if cata then
 			end
 		end,
 		["MovingDispel"] = function()
-			if ni.player.ismoving() then
+			if enables["OffensiveDispel"] and ni.player.ismoving() then
 				for d = 1, #dispelableBuffs do
 					if ni.unit.buff(t, dispelableBuffs[d])
 							and ni.spell.valid(t, 527) then
