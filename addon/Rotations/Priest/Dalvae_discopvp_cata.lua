@@ -236,6 +236,17 @@ if cata then
 	end
 
 	local abilities = {
+		["DebugHealer"] = function()
+			if UnitExists("target") then
+				local isHealer = IsHealer("target")
+				local maxMana = UnitPowerMax("target", 0)
+				local _, class = UnitClass("target")
+				if isHealer then
+					print("Target is a healer: " .. class .. " with " .. maxMana .. " max mana")
+				end
+			end
+		end,
+
 		["Cache"] = function()
 			Cache.targets = ni.unit.enemiesinrange(p, 30)
 			Cache.moving = ni.player.ismoving()
