@@ -22,7 +22,6 @@ if cata then
 		"DefensiveDispelpriority",
 		"Lookatcasting",
 		"PrayerOfMendingMyself",
-		"RenewMe",
 		"ShadowFiend",
 		"ShieldMe",
 		"Pause Rotation",
@@ -41,6 +40,7 @@ if cata then
 		"PrayerofHealing",
 		"AttonementMindBlast", --CD Toggllwer
 		"Renew",
+		"RenewMe",
 		"Penancelowpriority",
 		"Heal",
 		"DOTS",
@@ -211,6 +211,7 @@ if cata then
 		6789, -- Deathcoil
 		5484, -- Fear2
 		5782, -- fear Warlock
+		34914, -- Vampiric touch
 
 	}
 	local Cache = {
@@ -254,6 +255,7 @@ if cata then
 				return a.hp() < b.hp()
 			end)
 			Cache.members = members_in_range
+			print(Cache.members)
 		end,
 
 
