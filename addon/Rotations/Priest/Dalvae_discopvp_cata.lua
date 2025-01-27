@@ -259,12 +259,11 @@ if cata then
 
 		["Antiinvi"] = function()
 			if ni.player.hp() > 50 then
-				local enemies = ni.unit.enemiesinrange("player", 30)
 				for i = 1, #Cache.targets do
-					local target = enemies[i].guid
+					local target = Cache.targets[i].guid
 					if ni.player.los(target)
-							and (select(2, UnitClass(enemies[i].guid)) == "DRUID" or
-								select(2, UnitClass(enemies[i].guid)) == "ROGUE")
+							and (select(2, UnitClass(Cache.targets[i].guid)) == "DRUID" or
+								select(2, UnitClass(Cache.targets[i].guid)) == "ROGUE")
 							and not ni.unit.debuff(target, spells.ShadowWordPain.id, "player")
 					then
 						ni.spell.cast(spells.ShadowWordPain.id, target)
@@ -273,12 +272,11 @@ if cata then
 			end
 		end,
 		["Showinvis"] = function()
-			local enemies = ni.unit.enemiesinrange("player", 9)
 			local invisibledet = { 1784, 5215, 58984 }
 			for d = 1, #invisibledet do
-				for i = 1, #enemies do
-					if ni.unit.buff(enemies[i].guid, invisibledet[d])
-							and ni.player.los(enemies[i].guid) then
+				for i = 1, #Cache.targets do
+					if ni.unit.buff(Cache.targets[i].guid, invisibledet[d])
+							and ni.player.los(Cache.targets[i].guid) then
 						ni.spell.cast(48078) -- Holy nova
 					end
 				end
@@ -391,9 +389,8 @@ if cata then
 		end,
 		["KS"] = function()
 			if ni.spell.cd(spells.ShadowWordDeath.id) == 0 then
-				local enemies = ni.unit.enemiesinrange("player", 30)
-				for i = 1, #enemies do
-					local target = enemies[i].guid
+				for i = 1, #Cache.targets do
+					local target = Cache.targets[i].guid
 					-- if ni.spell.valid(spells.ShadowWordDeath.id, target, false, true, false)
 					if ni.player.los(target)
 							and ni.unit.isplayer(target)
@@ -728,9 +725,8 @@ if cata then
 		["ManaBurn"] = function()
 			if enables["ManaBurn"] then
 				if ni.spell.available(8129) and not Cache.moving then
-					local enemies = Cache.targets
-					for i = 1, #enemies do
-						local target = enemies[i].guid
+					for i = 1, #Cache.targets do
+						local target = Cache.targets[i].guid
 						if ni.unit.isplayer(target)
 								and (IsHealer(target) or ni.unit.creaturetype(target) == "Mage")
 								and ni.unit.power(target, "mana") > 20
