@@ -2,8 +2,7 @@ local build = select(4, GetBuildInfo());
 local cata = build == 40300 or false;
 if cata then
 	local queue = {
-		"DebugHealer",
-		"InnerFire", 
+		"InnerFire",
 		"Cache",
 		"ShieldSelf",
 		"PowerWordFortitude",
@@ -34,7 +33,6 @@ if cata then
 		"Penance",
 		"FlashHeal",
 		"MovingDispel",
-		"Burn mana",
 		"AttonementHolyFire", --CD Toggller
 		"PenanceAttornament", -- CD Toggller
 		"PenanceOnTank",
@@ -216,23 +214,23 @@ if cata then
 
 	}
 	local Cache = {
-		moving = ni.player.ismoving(),
-		members = ni.members.sort(),
-		targets = ni.unit.enemiesinrange(p, 30),
+		moving = false,
+		members = {},
+		targets = {}
 	}
 	local function IsHealer(unit)
-	    if not UnitExists(unit) then return false end
-    
-	    local _, class = UnitClass(unit)
-	    local maxMana = UnitPowerMax(unit, 0) -- 0 is for mana
-    
-	    -- Check if unit is a healer class with high mana pool
-	    if (class == "PRIEST" or class == "DRUID" or class == "SHAMAN" or class == "PALADIN") 
-	       and maxMana > 82000 then
-	        return true
-	    end
-    
-	    return false
+		if not UnitExists(unit) then return false end
+
+		local _, class = UnitClass(unit)
+		local maxMana = UnitPowerMax(unit, 0) -- 0 is for mana
+
+		-- Check if unit is a healer class with high mana pool
+		if (class == "PRIEST" or class == "DRUID" or class == "SHAMAN" or class == "PALADIN")
+				and maxMana > 82000 then
+			return true
+		end
+
+		return false
 	end
 
 	local abilities = {
@@ -248,16 +246,21 @@ if cata then
 		end,
 
 		["Cache"] = function()
-			Cache.targets = ni.unit.enemiesinrange(p, 30)
+			Cache.targets = ni.unit.enemiesinrange("player", 30)
 			Cache.moving = ni.player.ismoving()
-			Cache.members = ni.members.sort()
+
+			local members_in_range = ni.members.inrange("player", 40)
+			table.sort(members_in_range, function(a, b)
+				return a.hp() < b.hp()
+			end)
+			Cache.members = members_in_range
 		end,
 
 
 		["Antiinvi"] = function()
 			if ni.player.hp() > 50 then
 				local enemies = ni.unit.enemiesinrange("player", 30)
-				for i = 1, #enemies do
+				for i = 1, #Cache.targets do
 					local target = enemies[i].guid
 					if ni.player.los(target)
 							and (select(2, UnitClass(enemies[i].guid)) == "DRUID" or
@@ -282,7 +285,8 @@ if cata then
 			end
 		end,
 		["Lookatcasting"] = function()
-			if ni.player.iscasting() or ni.unit.ischanneling("player") then
+			if ni.player.iscasting()
+					or ni.unit.ischanneling("player") then
 				ni.player.stopmoving()
 				ni.player.lookat("target")
 				return false
@@ -427,11 +431,22 @@ if cata then
 		["Pause Rotation"] = function()
 			if IsMounted()
 					or UnitIsDeadOrGhost("player")
-					or not UnitAffectingCombat("player")
 					or ni.unit.buff("player", "Drink")
 					or ni.unit.ischanneling("player") then
-				return true;
+				return true
 			end
+
+			if not UnitAffectingCombat("player") then
+				for i = 1, #Cache.members do
+					local ally = Cache.members[i]
+					if ally:combat() then
+						return false
+					end
+				end
+				return true
+			end
+
+			return false
 		end,
 
 
@@ -457,11 +472,11 @@ if cata then
 		--     if ni spell.available(spells.PainSuprersion.id) then
 
 		["PenanceOnTank"] = function()
-			for i = 1, #ni.members.inrange("player", 40) do
-				if ni.members[i]:istank() and
-						ni.members.inrange("player", 40)[i].hp() <= 90 and
-						ValidUsable(spells.Penance.id, ni.members[i].unit) and
-						LosCast(spells.Penance.name, ni.members[i].unit)
+			for i = 1, #Cache.members do
+				if Cache.members[i]:istank() and
+						Cache.members[i].hp() <= 90 and
+						ValidUsable(spells.Penance.id, Cache.members[i].unit) and
+						LosCast(spells.Penance.name, Cache.members[i].unit)
 				then
 					return true
 				end
@@ -472,8 +487,9 @@ if cata then
 			if enables["DefensiveDispel"] then
 				for i = 1, #Cache.members do
 					for _, v in pairs(priorityccbuffs) do
-						if ni.player.los(Cache.members[i].guid)
-								and ni.unit.debuff(Cache.members[i].guid, v) then
+						if ni.player.los(Cache.members[i].guid) and
+								ni.unit.debuff(Cache.members[i].guid, v)
+						then
 							ni.spell.cast(527, Cache.members[i].guid)
 						end
 					end
@@ -481,12 +497,12 @@ if cata then
 			end
 		end,
 		["ShieldOnTank"] = function()
-			for i = 1, #ni.members.inrange("player", 40) do
-				if ni.members[i]:istank() and
-						ni.members.inrange("player", 40)[i].hp() <= 100 and
-						not ni.unit.debuff(ni.members[i].unit, 6788, t) and
-						ValidUsable(spells.PowerWordShield.id, ni.members[i].unit) and
-						LosCast(spells.PowerWordShield.name, ni.members[i].unit)
+			for i = 1, #Cache.members do
+				if Cache.members[i]:istank() and
+						Cache.members[i].hp() <= 100 and
+						not ni.unit.debuff(Cache.members[i].unit, 6788, t) and
+						ValidUsable(spells.PowerWordShield.id, Cache.members[i].unit) and
+						LosCast(spells.PowerWordShield.name, Cache.members[i].unit)
 				then
 					return true
 				end
@@ -546,12 +562,11 @@ if cata then
 			end
 		end,
 		["Penancelowpriority"] = function()
-			if not ni.player.ismoving()
-					and ni.spell.cd(spells.Penance.id) == 0 then
+			if not ni.player.ismoving() and ni.spell.cd(spells.Penance.id) == 0 then
 				for i = 1, #Cache.members do
 					if Cache.members[i].hp() <= 80 and
-							ValidUsable(spells.Penance.id, ni.members[i].unit) and
-							LosCastStand(spells.Penance.name, ni.members[i].unit)
+							ValidUsable(spells.Penance.id, Cache.members[i].unit) and
+							LosCastStand(spells.Penance.name, Cache.members[i].unit)
 					then
 						return true
 					end
@@ -560,7 +575,8 @@ if cata then
 		end,
 		["Shield"] = function()
 			for i = 1, #Cache.members do
-				if Cache.members[i].hp() <= 99 and not ni.unit.debuff(Cache.members[i].unit, 6788, t) and
+				if Cache.members[i].hp() <= 94 and
+						not ni.unit.debuff(Cache.members[i].unit, 6788, t) and
 						ValidUsable(spells.PowerWordShield.id, Cache.members[i].unit) and
 						LosCast(spells.PowerWordShield.name, Cache.members[i].unit)
 				then
@@ -570,7 +586,8 @@ if cata then
 		end,
 		["ShieldLow"] = function()
 			for i = 1, #Cache.members do
-				if Cache.members[i].hp() <= 40 and not ni.unit.debuff(Cache.members[i].unit, 6788, t) and
+				if Cache.members[i].hp() <= 40 and
+						not ni.unit.debuff(Cache.members[i].unit, 6788, t) and
 						ValidUsable(spells.PowerWordShield.id, Cache.members[i].unit) and
 						LosCast(spells.PowerWordShield.name, Cache.members[i].unit)
 				then
@@ -581,9 +598,10 @@ if cata then
 		["Renew"] = function()
 			if ni.player.power("mana") > 65 then
 				for i = 1, #Cache.members do
-					if Cache.members[i].hp() <= 95 and not ni.unit.buff(ni.members[i].unit, 139, p) and
-							ValidUsable(spells.Renew.id, ni.members[i].unit) and
-							LosCast(spells.Renew.name, ni.members[i].unit)
+					if Cache.members[i].hp() <= 95 and
+							not ni.unit.buff(Cache.members[i].unit, 139, p) and
+							ValidUsable(spells.Renew.id, Cache.members[i].unit) and
+							LosCast(spells.Renew.name, Cache.members[i].unit)
 					then
 						return true
 					end
@@ -627,22 +645,21 @@ if cata then
 			end
 		end,
 		["PrayerOfMending"] = function()
-			if ni.spell.cd(spells.PrayerOfMending.id) == 0
-			then
+			if ni.spell.cd(spells.PrayerOfMending.id) == 0 then
 				local renewActive = false
-				for i = 1, #ni.members.inrange("player", 40) do
-					if ni.unit.buff(ni.members[i].unit, spells.PrayerOfMending.id, "player") then
+				for i = 1, #Cache.members do
+					if ni.unit.buff(Cache.members[i].unit, spells.PrayerOfMending.id, "player") then
 						renewActive = true
 						break
 					end
 				end
-				-- No sé si funciona, tambien hay que agregarle una condicional para targetar aquel que tenga agro
 				if not renewActive then
-					for i = 1, #ni.members.inrange("player", 40) do
-						if ni.members[i].hp() < 99
-								and not ni.unit.buff(ni.members[i].unit, spells.PrayerOfMending.id, "player")
-								and ni.spell.valid(ni.members[i].unit, spells.PrayerOfMending.id, false, true, true) then
-							ni.spell.cast(spells.PrayerOfMending.id, ni.members[i].unit)
+					for i = 1, #Cache.members do
+						if Cache.members[i].hp() < 99 and
+								not ni.unit.buff(Cache.members[i].unit, spells.PrayerOfMending.id, "player") and
+								ni.spell.valid(Cache.members[i].unit, spells.PrayerOfMending.id, false, true, true)
+						then
+							ni.spell.cast(spells.PrayerOfMending.id, Cache.members[i].unit)
 							return true
 						end
 					end
@@ -658,20 +675,23 @@ if cata then
 			end
 		end,
 		["PrayerofHealing"] = function()
-			local members = ni.members.inrangebelow("player", 40, 50)
-			if
-					#members >= 4 and ValidUsable(spells.CircleOfHealing.id, members[1].unit) and
-					LosCast(spells.CircleOfHealing.name, members[1].unit)
+			local lowMembers = {}
+			for i = 1, #Cache.members do
+				if Cache.members[i].hp() <= 50 then
+					table.insert(lowMembers, Cache.members[i])
+				end
+			end
+			if #lowMembers >= 4 and ValidUsable(spells.PrayerofHealing.id, lowMembers[1].unit) and
+					LosCast(spells.PrayerofHealing.name, lowMembers[1].unit)
 			then
 				return true
 			end
 		end,
 		["GreaterHeal"] = function()
 			for i = 1, #Cache.members do
-				if
-						Cache.members[i].hp() <= 70 and
-						ValidUsable(spells.GreaterHeal.id, ni.members[i].unit) and
-						LosCast(spells.GreaterHeal.name, ni.members[i].unit)
+				if Cache.members[i].hp() <= 70 and
+						ValidUsable(spells.GreaterHeal.id, Cache.members[i].unit) and
+						LosCast(spells.GreaterHeal.name, Cache.members[i].unit)
 				then
 					return true
 				end
