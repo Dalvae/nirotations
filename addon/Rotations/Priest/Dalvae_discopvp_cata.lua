@@ -513,8 +513,8 @@ if cata then
 				for i = 1, #Cache.members do
 					if
 							Cache.members[i].hp() <= 80 and
-							ValidUsable(spells.Heal.id, ni.members[i].unit) and
-							LosCast(spells.Heal.name, ni.members[i].unit)
+							ValidUsable(spells.Heal.id, Cache.members[i].unit) and
+							LosCast(spells.Heal.name, Cache.members[i].unit)
 					then
 						return true
 					end
@@ -526,8 +526,8 @@ if cata then
 				for i = 1, #Cache.members do
 					if
 							Cache.members[i].hp() <= 70 and
-							ValidUsable(spells.FlashHeal.id, ni.members[i].unit) and
-							LosCast(spells.FlashHeal.name, ni.members[i].unit)
+							ValidUsable(spells.FlashHeal.id, Cache.members[i].unit) and
+							LosCast(spells.FlashHeal.name, Cache.members[i].unit)
 					then
 						return true
 					end
@@ -539,8 +539,8 @@ if cata then
 					and ni.spell.cd(spells.Penance.id) == 0 then
 				for i = 1, #Cache.members do
 					if Cache.members[i].hp() <= 30 and
-							ValidUsable(spells.Penance.id, ni.members[i].unit) and
-							LosCastStand(spells.Penance.name, ni.members[i].unit)
+							ValidUsable(spells.Penance.id, Cache.members[i].unit) and
+							LosCastStand(spells.Penance.name, Cache.members[i].unit)
 					then
 						return true
 					end
@@ -552,8 +552,8 @@ if cata then
 					and ni.spell.cd(spells.Penance.id) == 0 then
 				for i = 1, #Cache.members do
 					if Cache.members[i].hp() <= 69 and
-							ValidUsable(spells.Penance.id, ni.members[i].unit) and
-							LosCastStand(spells.Penance.name, ni.members[i].unit)
+							ValidUsable(spells.Penance.id, Cache.members[i].unit) and
+							LosCastStand(spells.Penance.name, Cache.members[i].unit)
 					then
 						return true
 					end
