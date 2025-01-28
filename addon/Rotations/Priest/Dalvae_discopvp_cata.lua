@@ -536,13 +536,15 @@ if cata then
 		--     if ni spell.available(spells.PainSuprersion.id) then
 
 		["PenanceOnTank"] = function()
-			for i = 1, #Cache.members do
-				if Cache.members[i]:istank() and
-						Cache.members[i].hp() <= 90 and
-						ValidUsable(spells.Penance.id, Cache.members[i].unit) and
-						LosCast(spells.Penance.name, Cache.members[i].unit)
-				then
-					return true
+			if ni.spell.cd(spells.Penance.id) < 0.1 then
+				for i = 1, #Cache.members do
+					if Cache.members[i]:istank() and
+							Cache.members[i].hp() <= 90 and
+							ValidUsable(spells.Penance.id, Cache.members[i].unit) and
+							LosCast(spells.Penance.name, Cache.members[i].unit)
+					then
+						return true
+					end
 				end
 			end
 		end,
@@ -579,14 +581,16 @@ if cata then
 			end
 		end,
 		["ShieldOnTank"] = function()
-			for i = 1, #Cache.members do
-				if Cache.members[i]:istank() and
-						Cache.members[i].hp() <= 100 and
-						not ni.unit.debuff(Cache.members[i].unit, 6788, t) and
-						ValidUsable(spells.PowerWordShield.id, Cache.members[i].unit) and
-						LosCast(spells.PowerWordShield.name, Cache.members[i].unit)
-				then
-					return true
+			if ni.spell.cd(spells.Penance.id) < 0.1 then
+				for i = 1, #Cache.members do
+					if Cache.members[i]:istank() and
+							Cache.members[i].hp() <= 100 and
+							not ni.unit.debuff(Cache.members[i].unit, 6788, t) and
+							ValidUsable(spells.PowerWordShield.id, Cache.members[i].unit) and
+							LosCast(spells.PowerWordShield.name, Cache.members[i].unit)
+					then
+						return true
+					end
 				end
 			end
 		end,
