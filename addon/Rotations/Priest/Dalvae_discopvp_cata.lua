@@ -715,12 +715,17 @@ if cata then
 		["HealOutOfCombat"] = function()
 			if not UnitAffectingCombat("player") then
 				for i = 1, #Cache.members do
-					if Cache.members[i].hp() <= 95
-							and not ni.player.ismoving()
-							and ValidUsable(spells.Heal.id, Cache.members[i].unit)
-							and LosCast(spells.Heal.name, Cache.members[i].unit)
-					then
-						return true
+					if Cache.members[i].hp() <= 95 and not ni.player.ismoving() then
+						if ni.spell.cd(spells.Penance.id) == 0 
+							and ValidUsable(spells.Penance.id, Cache.members[i].unit)
+							and LosCastStand(spells.Penance.name, Cache.members[i].unit) 
+						then
+							return true
+						elseif ValidUsable(spells.FlashHeal.id, Cache.members[i].unit)
+							and LosCast(spells.FlashHeal.name, Cache.members[i].unit)
+						then
+							return true
+						end
 					end
 				end
 			end
