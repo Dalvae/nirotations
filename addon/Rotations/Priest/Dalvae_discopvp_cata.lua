@@ -27,6 +27,7 @@ if cata then
 		"PrayerOfMendingMyself",
 		"ShadowFiend",
 		"ShieldMe",
+		"HealOutOfCombat",
 		"Pause Rotation",
 		"PrayerOfMending",
 		"Shackle Gargoyle",
@@ -50,36 +51,150 @@ if cata then
 		"ManaBurn",
 	}
 
-
-
 	local spells = {
-		Renew = { id = 139, name = GetSpellInfo(139) },
-		Heal = { id = 2050, name = GetSpellInfo(2050) },
-		HolyWordSerenity = { id = 88684, name = GetSpellInfo(88684) },
-		FlashHeal = { id = 2061, name = GetSpellInfo(2061) },
-		GreaterHeal = { id = 2060, name = GetSpellInfo(2060) },
-		PrayerOfMending = { id = 33076, name = GetSpellInfo(33076) },
-		Penance = { id = 47540, name = GetSpellInfo(47540) },
-		PowerWordShield = { id = 17, name = GetSpellInfo(17) },
-		Smite = { id = 585, name = GetSpellInfo(585) },
-		HolyFire = { id = 14914, name = GetSpellInfo(14914) },
-		PrayerofHealing = { id = 596, name = GetSpellInfo(596) },
-		Archangel = { id = 87151, name = GetSpellInfo(87151) },
-		InnerFire = { id = 588, name = GetSpellInfo(588) },
-		PowerInfusion = { id = 10060, name = GetSpellInfo(10060) },
-		PowerWordFortitude = { id = 21562, name = GetSpellInfo(21562) },
-		PainSuprersion = { id = 21562, name = GetSpellInfo(21562) },
-		MindBlast = { id = 8092, name = GetSpellInfo(8092) },
-		DesesperatePrayer = { id = 19236, name = GetSpellInfo(19236) },
-		ShadowWordPain = { id = 589, name = GetSpellInfo(589) },
-		HolyNova = { id = 15237, name = GetSpellInfo(15237) },
-		ShadowWordDeath = { id = 32379, name = GetSpellInfo(32379) },
-		DevouringPlague = { id = 2944, name = GetSpellInfo(2944) },
-		PrayerofShadowProtection = { id = 27683, name = GetSpellInfo(27683) },
-		ShadowFiend = { id = 34433, name = GetSpellInfo(34433) },
-		MassDispel = { id = 32375, name = GetSpellInfo(32375) },
-		ShackleUndead = { id = 9484, name = GetSpellInfo(9484) },
+		Renew = {
+			id = 139,
+			name = select(1, GetSpellInfo(139)),
+			icon = select(3, GetSpellInfo(139))
+		},
+		Heal = {
+			id = 2050,
+			name = select(1, GetSpellInfo(2050)),
+			icon = select(3, GetSpellInfo(2050))
+		},
+		HolyWordSerenity = {
+			id = 88684,
+			name = select(1, GetSpellInfo(88684)),
+			icon = select(3, GetSpellInfo(88684))
+		},
+		FlashHeal = {
+			id = 2061,
+			name = select(1, GetSpellInfo(2061)),
+			icon = select(3, GetSpellInfo(2061))
+		},
+		GreaterHeal = {
+			id = 2060,
+			name = select(1, GetSpellInfo(2060)),
+			icon = select(3, GetSpellInfo(2060))
+		},
+		PrayerOfMending = {
+			id = 33076,
+			name = select(1, GetSpellInfo(33076)),
+			icon = select(3, GetSpellInfo(33076))
+		},
+		Penance = {
+			id = 47540,
+			name = select(1, GetSpellInfo(47540)),
+			icon = select(3, GetSpellInfo(47540))
+		},
+		PowerWordShield = {
+			id = 17,
+			name = select(1, GetSpellInfo(17)),
+			icon = select(3, GetSpellInfo(17))
+		},
+		Smite = {
+			id = 585,
+			name = select(1, GetSpellInfo(585)),
+			icon = select(3, GetSpellInfo(585))
+		},
+		HolyFire = {
+			id = 14914,
+			name = select(1, GetSpellInfo(14914)),
+			icon = select(3, GetSpellInfo(14914))
+		},
+		PrayerofHealing = {
+			id = 596,
+			name = select(1, GetSpellInfo(596)),
+			icon = select(3, GetSpellInfo(596))
+		},
+		Archangel = {
+			id = 87151,
+			name = select(1, GetSpellInfo(87151)),
+			icon = select(3, GetSpellInfo(87151))
+		},
+		InnerFire = {
+			id = 588,
+			name = select(1, GetSpellInfo(588)),
+			icon = select(3, GetSpellInfo(588))
+		},
+		PowerInfusion = {
+			id = 10060,
+			name = select(1, GetSpellInfo(10060)),
+			icon = select(3, GetSpellInfo(10060))
+		},
+		PowerWordFortitude = {
+			id = 21562,
+			name = select(1, GetSpellInfo(21562)),
+			icon = select(3, GetSpellInfo(21562))
+		},
+		PainSuprersion = {
+			id = 21562,
+			name = select(1, GetSpellInfo(21562)),
+			icon = select(3, GetSpellInfo(21562))
+		},
+		MindBlast = {
+			id = 8092,
+			name = select(1, GetSpellInfo(8092)),
+			icon = select(3, GetSpellInfo(8092))
+		},
+		DesesperatePrayer = {
+			id = 19236,
+			name = select(1, GetSpellInfo(19236)),
+			icon = select(3, GetSpellInfo(19236))
+		},
+		ShadowWordPain = {
+			id = 589,
+			name = select(1, GetSpellInfo(589)),
+			icon = select(3, GetSpellInfo(589))
+		},
+		HolyNova = {
+			id = 15237,
+			name = select(1, GetSpellInfo(15237)),
+			icon = select(3, GetSpellInfo(15237))
+		},
+		ShadowWordDeath = {
+			id = 32379,
+			name = select(1, GetSpellInfo(32379)),
+			icon = select(3, GetSpellInfo(32379))
+		},
+		DevouringPlague = {
+			id = 2944,
+			name = select(1, GetSpellInfo(2944)),
+			icon = select(3, GetSpellInfo(2944))
+		},
+		PrayerofShadowProtection = {
+			id = 27683,
+			name = select(1, GetSpellInfo(27683)),
+			icon = select(3, GetSpellInfo(27683))
+		},
+		ShadowFiend = {
+			id = 34433,
+			name = select(1, GetSpellInfo(34433)),
+			icon = select(3, GetSpellInfo(34433))
+		},
+		MassDispel = {
+			id = 32375,
+			name = select(1, GetSpellInfo(32375)),
+			icon = select(3, GetSpellInfo(32375))
+		},
+		ShackleUndead = {
+			id = 9484,
+			name = select(1, GetSpellInfo(9484)),
+			icon = select(3, GetSpellInfo(9484))
+		},
+		Dispel = {
+			id = 527,
+			name = select(1, GetSpellInfo(527)),
+			icon = select(3, GetSpellInfo(527))
+		},
+		ManaBurn = {
+			id = 8129,
+			name = select(1, GetSpellInfo(8129)),
+			icon = select(3, GetSpellInfo(8129))
+		}
 	}
+
+
 
 	local enables = {
 		["DefensiveDispel"] = true,
@@ -117,21 +232,21 @@ if cata then
 		{ type = "separator" },
 		{
 			type = "entry",
-			text = "\124T" .. select(3, GetSpellInfo(527)) .. ":26:26\124t Defensive Dispel",
+			text = "\124T" .. spells.Dispel.icon .. ":26:26\124t Defensive Dispel",
 			tooltip = "Auto dispel harmful effects on allies",
 			enabled = enables["DefensiveDispel"],
 			key = "DefensiveDispel"
 		},
 		{
 			type = "entry",
-			text = "\124T" .. select(3, GetSpellInfo(527)) .. ":26:26\124t Offensive Dispel",
+			text = "\124T" .. spells.Dispel.icon .. ":26:26\124t Offensive Dispel",
 			tooltip = "Auto dispel beneficial effects on enemies",
 			enabled = enables["OffensiveDispel"],
 			key = "OffensiveDispel"
 		},
 		{
 			type = "entry",
-			text = "\124T" .. select(3, GetSpellInfo(527)) .. ":26:26\124t Priority Offensive Dispel",
+			text = "\124T" .. spells.Dispel.icon .. ":26:26\124t Priority Offensive Dispel",
 			tooltip = "Auto dispel high priority buffs (Bloodlust, Wings, etc)",
 			enabled = enables["PriorityDispel"],
 			key = "PriorityDispel"
@@ -139,10 +254,34 @@ if cata then
 		{ type = "entry",    text = "|cffFFFF00CD Toggle|r - Enables offensive spells (Smite, Holy Fire, etc)" },
 		{ type = "entry",    text = "|cffFFFF00AoE Toggle|r - Enables Shield Everyone ability" },
 		{ type = "separator" },
-		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(139)) .. ":26:26\124t Auto Renew Self",  tooltip = "Keep Renew on yourself",              enabled = enables["RenewSelf"],    key = "RenewSelf" },
-		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(589)) .. ":26:26\124t DoTs on Target",   tooltip = "Maintain DoTs on current target",     enabled = enables["DotsOnTarget"], key = "DotsOnTarget" },
-		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(17)) .. ":26:26\124t Shield Self",       tooltip = "Keep Power Word: Shield on yourself", enabled = enables["ShieldSelf"],   key = "ShieldSelf" },
-		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(8129)) .. ":26:26\124t Mana Burn",       tooltip = "Use Mana Burn on enemy healers",      enabled = enables["ManaBurn"],     key = "ManaBurn" },
+		{
+			type = "entry",
+			text = "\124T" .. spells.Renew.icon .. ":26:26\124t Auto Renew Self",
+			tooltip = "Keep Renew on yourself",
+			enabled = enables["RenewSelf"],
+			key = "RenewSelf"
+		},
+		{
+			type = "entry",
+			text = "\124T" .. spells.ShadowWordPain.icon .. ":26:26\124t DoTs on Target",
+			tooltip = "Maintain DoTs on current target",
+			enabled = enables["DotsOnTarget"],
+			key = "DotsOnTarget"
+		},
+		{
+			type = "entry",
+			text = "\124T" .. spells.PowerWordShield.icon .. ":26:26\124t Shield Self",
+			tooltip = "Keep Power Word: Shield on yourself",
+			enabled = enables["ShieldSelf"],
+			key = "ShieldSelf"
+		},
+		{
+			type = "entry",
+			text = "\124T" .. spells.ManaBurn.icon .. ":26:26\124t Mana Burn",
+			tooltip = "Use Mana Burn on enemy healers",
+			enabled = enables["ManaBurn"],
+			key = "ManaBurn"
+		},
 	}
 	local function LosCast(spell, tar)
 		if ni.player.los(tar) and IsSpellInRange(spell, tar) == 1 then
@@ -569,6 +708,19 @@ if cata then
 						then
 							ni.spell.cast(527, Cache.members[i].guid)
 						end
+					end
+				end
+			end
+		end,
+		["HealOutOfCombat"] = function()
+			if not UnitAffectingCombat("player") then
+				for i = 1, #Cache.members do
+					if Cache.members[i].hp() <= 95
+							and not ni.player.ismoving()
+							and ValidUsable(spells.Heal.id, Cache.members[i].unit)
+							and LosCast(spells.Heal.name, Cache.members[i].unit)
+					then
+						return true
 					end
 				end
 			end
