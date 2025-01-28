@@ -2,6 +2,7 @@ local build = select(4, GetBuildInfo());
 local cata = build == 40300 or false;
 if cata then
 	local queue = {
+		-- "SomeSpell",
 		"InnerFire",
 		"Cache",
 		"ShieldSelf",
@@ -12,14 +13,16 @@ if cata then
 		"Showinvis",
 		"DesesperatePrayer",
 		"KS",
-		"ShieldEveryone", --Aoe toggler
 		-- "PainSupression",
 		"Archangel",
 		"ShieldLow",
 		"POMlow",
 		"PenanceLow",
+		"FlashHealLow",
 		"MassDispel",
+		"PriorityDispel",
 		"DefensiveDispelpriority",
+		"ShieldEveryone", --Aoe toggler
 		"Lookatcasting",
 		"PrayerOfMendingMyself",
 		"ShadowFiend",
@@ -73,11 +76,13 @@ if cata then
 		PrayerofShadowProtection = { id = 27683, name = GetSpellInfo(27683) },
 		ShadowFiend = { id = 34433, name = GetSpellInfo(34433) },
 		MassDispel = { id = 32375, name = GetSpellInfo(32375) },
+		ShackleUndead = { id = 9484, name = GetSpellInfo(9484) },
 	}
 
 	local enables = {
 		["DefensiveDispel"] = true,
 		["OffensiveDispel"] = true,
+		["PriorityDispel"] = true,
 		["MassDispel"] = true,
 		["RenewSelf"] = true,
 		["DotsOnTarget"] = true,
@@ -106,16 +111,36 @@ if cata then
 		callback = GUICallback,
 		{ type = "title",    text = "|cff00ccffDalvae Disco PvP" },
 		{ type = "separator" },
+		{ type = "title",    text = "|cffFFFF00Dispel Settings|r" },
+		{ type = "separator" },
+		{
+			type = "entry",
+			text = "\124T" .. select(3, GetSpellInfo(527)) .. ":26:26\124t Defensive Dispel",
+			tooltip = "Auto dispel harmful effects on allies",
+			enabled = enables["DefensiveDispel"],
+			key = "DefensiveDispel"
+		},
+		{
+			type = "entry",
+			text = "\124T" .. select(3, GetSpellInfo(527)) .. ":26:26\124t Offensive Dispel",
+			tooltip = "Auto dispel beneficial effects on enemies",
+			enabled = enables["OffensiveDispel"],
+			key = "OffensiveDispel"
+		},
+		{
+			type = "entry",
+			text = "\124T" .. select(3, GetSpellInfo(527)) .. ":26:26\124t Priority Offensive Dispel",
+			tooltip = "Auto dispel high priority buffs (Bloodlust, Wings, etc)",
+			enabled = enables["PriorityDispel"],
+			key = "PriorityDispel"
+		},
 		{ type = "entry",    text = "|cffFFFF00CD Toggle|r - Enables offensive spells (Smite, Holy Fire, etc)" },
 		{ type = "entry",    text = "|cffFFFF00AoE Toggle|r - Enables Shield Everyone ability" },
 		{ type = "separator" },
-		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(527)) .. ":26:26\124t Defensive Dispel", tooltip = "Auto dispel harmful effects on allies",      enabled = enables["DefensiveDispel"], key = "DefensiveDispel" },
-		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(527)) .. ":26:26\124t Offensive Dispel", tooltip = "Auto dispel beneficial effects on enemies",  enabled = enables["OffensiveDispel"], key = "OffensiveDispel" },
-		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(32375)) .. ":26:26\124t Mass Dispel",    tooltip = "Use Mass Dispel on Divine Shield/Ice Block", enabled = enables["MassDispel"],      key = "MassDispel" },
-		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(139)) .. ":26:26\124t Auto Renew Self",  tooltip = "Keep Renew on yourself",                     enabled = enables["RenewSelf"],       key = "RenewSelf" },
-		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(589)) .. ":26:26\124t DoTs on Target",   tooltip = "Maintain DoTs on current target",            enabled = enables["DotsOnTarget"],    key = "DotsOnTarget" },
-		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(17)) .. ":26:26\124t Shield Self",       tooltip = "Keep Power Word: Shield on yourself",        enabled = enables["ShieldSelf"],      key = "ShieldSelf" },
-		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(8129)) .. ":26:26\124t Mana Burn",       tooltip = "Use Mana Burn on enemy healers",             enabled = enables["ManaBurn"],        key = "ManaBurn" },
+		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(139)) .. ":26:26\124t Auto Renew Self",  tooltip = "Keep Renew on yourself",              enabled = enables["RenewSelf"],    key = "RenewSelf" },
+		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(589)) .. ":26:26\124t DoTs on Target",   tooltip = "Maintain DoTs on current target",     enabled = enables["DotsOnTarget"], key = "DotsOnTarget" },
+		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(17)) .. ":26:26\124t Shield Self",       tooltip = "Keep Power Word: Shield on yourself", enabled = enables["ShieldSelf"],   key = "ShieldSelf" },
+		{ type = "entry",    text = "\124T" .. select(3, GetSpellInfo(8129)) .. ":26:26\124t Mana Burn",       tooltip = "Use Mana Burn on enemy healers",      enabled = enables["ManaBurn"],     key = "ManaBurn" },
 	}
 	local function LosCast(spell, tar)
 		if ni.player.los(tar) and IsSpellInRange(spell, tar) == 1 then
@@ -160,59 +185,97 @@ if cata then
 
 	local t, p = "target", "player"
 
+	local prioritydispellbufs = {
+		-- Shaman
+		2825, -- Bloodlust
+		32182, -- Heroism
+		16166, -- Elemental Mastery
+
+		-- Paladin
+		1038, -- Hand of Salvation (NO - es physical)
+		1044, -- Hand of Freedom (NO - es physical)
+		54428, -- Divine Plea
+		31884, -- Avenging Wrath (Wings)
+
+		-- Priest
+		33206, -- Pain Suppression
+		6346, -- Fear Ward
+		47585, -- Dispersion
+
+		-- Death Knight
+		48792, -- Icebound Fortitude (NO - es physical)
+
+		-- Mage
+		12472, -- Icy Veins
+		12042, -- Arcane Power
+		12043, -- Presence of Mind
+		48108, -- Hot Streak
+
+		-- Druid
+		29166, -- Innervate
+		50334, -- Berserk (NO - es physical)
+		48505 -- Starfall
+	}
+
 	local dispelableBuffs = {
 		-- Paladin
 		79062, -- Blessing of Kings
 		79101, -- Blessing of Might
 		53563, -- Beacon of Light
-		1022, -- Hand Of protection
+		1022, -- Hand of Protection
+
 		-- Priest
 		17,  -- Power Word: Shield
 		139, -- Renew
 		6346, -- Fear Ward
-		79104, -- Power Word Fortitud
-		79106, -- Shadow protection
-		41635, -- Prayer of PrayerOfMending
+		79104, -- Power Word Fortitude
+		79106, -- Shadow Protection
+		41635, -- Prayer of Mending
+
 		-- Shaman
 		52127, -- Water Shield
 		974, -- Earth Shield
 		324, -- Lightning Shield
+
 		-- Druid
 		1126, -- Mark of the Wild
 		774, -- Rejuvenation
 		467, -- Thorns
-		-- Feral swiftness Missing
+
 		-- Mage
 		1459, -- Arcane Brilliance
 		7302, -- Ice Armor
-		30482, --
+		30482, -- Molten Armor
+
 		-- Warlock
-		687, -- Demon Armor
-		-- Añade más bufos dispeleables de Brujo aquí
-		-- Añade más bufos dispeleables de otras clases aquí
-
+		687 -- Demon Armor
 	}
-	local priorityccbuffs = {
-		853, -- Hammer of justice
-		6770, -- Sap
-		2094, -- Blind
-		-- Mage debuffs
-		11129, -- Combustion
-		118, -- Poly
-		28272, -- Poly
-		61305, -- Poly
-		61721, -- Poly
-		61025, -- Poly
-		61780, -- Poly
-		28271, -- Poly
-		-- Shadow
-		34914, -- Vampiric Touch
-		--Warlock
-		6789, -- Deathcoil
-		5484, -- Fear2
-		5782, -- fear Warlock
-		34914, -- Vampiric touch
 
+	local priorityccbuffs = {
+		-- Paladin
+		853, -- Hammer of Justice
+
+		-- Rogue
+		2094, -- Blind
+
+		-- Mage
+		11129, -- Combustion
+		118, -- Polymorph (Sheep)
+		28272, -- Polymorph (Pig)
+		61305, -- Polymorph (Black Cat)
+		61721, -- Polymorph (Rabbit)
+		61025, -- Polymorph (Serpent)
+		61780, -- Polymorph (Turkey)
+		28271, -- Polymorph (Turtle)
+
+		-- Priest
+		34914, -- Vampiric Touch
+
+		-- Warlock
+		6789, -- Death Coil (NO - es horror effect, no se puede dispellear)
+		5484, -- Fear
+		5782, -- Fear
+		34914 -- Vampiric Touch (duplicado, ya está en la sección de Priest)
 	}
 	local Cache = {
 		moving = false,
@@ -245,17 +308,18 @@ if cata then
 				end
 			end
 		end,
+		["SomeSpell"] = function()
+			for i = 1, #Cache.members do
+				for k, v in pairs(Cache.members[i]) do
+					print(i .. " - " .. k .. ": " .. tostring(v))
+				end
+			end
+		end,
 
 		["Cache"] = function()
 			Cache.targets = ni.unit.enemiesinrange("player", 30)
 			Cache.moving = ni.player.ismoving()
-
-			local members_in_range = ni.members.inrange("player", 40)
-			table.sort(members_in_range, function(a, b)
-				return a.hp() < b.hp()
-			end)
-			Cache.members = members_in_range
-			print(Cache.members)
+			Cache.members = ni.members.sort()
 		end,
 
 
@@ -302,6 +366,7 @@ if cata then
 		end,
 		["DesesperatePrayer"] = function()
 			if UnitAffectingCombat(p)
+					and ni.spell.cd(spells.DesesperatePrayer.id) == 0
 					and ni.player.hp() <= 20
 			then
 				ni.spell.cast(spells.DesesperatePrayer.id)
@@ -495,6 +560,24 @@ if cata then
 				end
 			end
 		end,
+		["PriorityDispel"] = function()
+			if enables["PriorityDispel"] then
+				for i = 1, #Cache.targets do
+					local target = Cache.targets[i].guid
+					if ni.player.los(target) then
+						for _, buffId in ipairs(prioritydispellbufs) do
+							if ni.unit.buff(target, buffId) then
+								-- Verificamos que podemos dispellear
+								if ni.spell.valid(target, 527, false, true, true) then
+									ni.spell.cast(527, target)
+									return true
+								end
+							end
+						end
+					end
+				end
+			end
+		end,
 		["ShieldOnTank"] = function()
 			for i = 1, #Cache.members do
 				if Cache.members[i]:istank() and
@@ -526,6 +609,19 @@ if cata then
 				for i = 1, #Cache.members do
 					if
 							Cache.members[i].hp() <= 70 and
+							ValidUsable(spells.FlashHeal.id, Cache.members[i].unit) and
+							LosCast(spells.FlashHeal.name, Cache.members[i].unit)
+					then
+						return true
+					end
+				end
+			end
+		end,
+		["FlashHealLow"] = function()
+			if not ni.player.ismoving() then
+				for i = 1, #Cache.members do
+					if
+							Cache.members[i].hp() <= 40 and
 							ValidUsable(spells.FlashHeal.id, Cache.members[i].unit) and
 							LosCast(spells.FlashHeal.name, Cache.members[i].unit)
 					then
@@ -731,7 +827,7 @@ if cata then
 						local target = Cache.targets[i].guid
 						if ni.unit.isplayer(target)
 								and (IsHealer(target) or ni.unit.creaturetype(target) == "Mage")
-								and ni.unit.power(target, "mana") > 20
+								and ni.unit.power(target, "mana") > 10
 								and ni.spell.valid(target, 8129, false, true, true) then
 							ni.spell.cast(8129, target)
 							return true
@@ -754,6 +850,19 @@ if cata then
 				end
 			end
 		end,
+		["Shackle Gargoyle"] = function()
+			for i = 1, #Cache.targets do
+				local target = Cache.targets[i].guid
+				local name = Cache.targets[i].name
+				if name == "Ebon Gargoyle"
+						and not ni.unit.debuff(target, spells.ShackleUndead.id)
+						and ni.spell.valid(target, spells.ShackleUndead.id, false, true, true)
+				then
+					ni.spell.cast(spells.ShackleUndead.id, target)
+					return true
+				end
+			end
+		end
 
 	}
 
