@@ -50,6 +50,8 @@ if cata then
 		"ManaBurn",
 	}
 
+
+
 	local spells = {
 		Renew = { id = 139, name = GetSpellInfo(139) },
 		Heal = { id = 2050, name = GetSpellInfo(2050) },
@@ -282,6 +284,7 @@ if cata then
 		members = {},
 		targets = {}
 	}
+	-- Helper for  isHealer
 	local function IsHealer(unit)
 		if not UnitExists(unit) then return false end
 
@@ -294,6 +297,15 @@ if cata then
 			return true
 		end
 
+		return false
+	end
+	local function IsBeingTargeted(unit)
+		for i = 1, #Cache.targets do
+			local enemyTarget = ni.unit.target(Cache.targets[i].guid)
+			if enemyTarget == unit then
+				return true
+			end
+		end
 		return false
 	end
 
@@ -461,7 +473,7 @@ if cata then
 					-- if ni.spell.valid(spells.ShadowWordDeath.id, target, false, true, false)
 					if ni.player.los(target)
 							and ni.unit.isplayer(target)
-							and ni.unit.hp(target) <= 17
+							and ni.unit.hp(target) <= 10
 					then
 						ni.spell.cast(spells.ShadowWordDeath.id, target)
 					end
@@ -484,7 +496,6 @@ if cata then
 					if Cache.members[i].hp() <= 40 and ni.player.los(Cache.members[i].unit)
 							and
 							ValidUsable(spells.PrayerOfMending.id, Cache.members[i].unit)
-							and ni.spell.valid(33076, Cache.members[i].unit, false, true, true)
 					then
 						ni.spell.cast(spells.PrayerOfMending.id, Cache.members[i].unit)
 						return true
@@ -580,20 +591,7 @@ if cata then
 				end
 			end
 		end,
-		["ShieldOnTank"] = function()
-			if ni.spell.cd(spells.Penance.id) < 0.1 then
-				for i = 1, #Cache.members do
-					if Cache.members[i]:istank() and
-							Cache.members[i].hp() <= 100 and
-							not ni.unit.debuff(Cache.members[i].unit, 6788, t) and
-							ValidUsable(spells.PowerWordShield.id, Cache.members[i].unit) and
-							LosCast(spells.PowerWordShield.name, Cache.members[i].unit)
-					then
-						return true
-					end
-				end
-			end
-		end,
+
 		["Heal"] = function()
 			if not ni.player.ismoving()
 					and not ni.player.ismoving() then
@@ -674,23 +672,47 @@ if cata then
 		end,
 		["Shield"] = function()
 			for i = 1, #Cache.members do
-				if Cache.members[i].hp() <= 94 and
-						not ni.unit.debuff(Cache.members[i].unit, 6788, t) and
-						ValidUsable(spells.PowerWordShield.id, Cache.members[i].unit) and
-						LosCast(spells.PowerWordShield.name, Cache.members[i].unit)
+				local ally = Cache.members[i]
+				if ally.hp() <= 94
+						and ally:combat()
+						and IsBeingTargeted(ally.guid)
+						and not ni.unit.debuff(ally.unit, 6788, t) -- Weakened Soul
+						and ValidUsable(spells.PowerWordShield.id, ally.unit)
+						and LosCast(spells.PowerWordShield.name, ally.unit)
 				then
 					return true
 				end
 			end
 		end,
+
 		["ShieldLow"] = function()
 			for i = 1, #Cache.members do
-				if Cache.members[i].hp() <= 40 and
-						not ni.unit.debuff(Cache.members[i].unit, 6788, t) and
-						ValidUsable(spells.PowerWordShield.id, Cache.members[i].unit) and
-						LosCast(spells.PowerWordShield.name, Cache.members[i].unit)
+				local ally = Cache.members[i]
+				if ally.hp() <= 40
+						and ally:combat()
+						and IsBeingTargeted(ally.guid)
+						and not ni.unit.debuff(ally.unit, 6788, t)
+						and ValidUsable(spells.PowerWordShield.id, ally.unit)
+						and LosCast(spells.PowerWordShield.name, ally.unit)
 				then
 					return true
+				end
+			end
+		end,
+
+		["ShieldOnTank"] = function()
+			if ni.spell.cd(spells.Penance.id) < 0.1 then
+				for i = 1, #Cache.members do
+					local ally = Cache.members[i]
+					if ally:istank()
+							and ally:combat()
+							and ally.hp() <= 100
+							and not ni.unit.debuff(ally.unit, 6788, t)
+							and ValidUsable(spells.PowerWordShield.id, ally.unit)
+							and LosCast(spells.PowerWordShield.name, ally.unit)
+					then
+						return true
+					end
 				end
 			end
 		end,
