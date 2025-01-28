@@ -666,7 +666,7 @@ if cata then
 
 		["MassDispel"] = function()
 			if enables["MassDispel"] then
-				local buffdispe = { 642, 45438, 1022 } -- Divine Shield, Ice Block, BOP
+				local buffdispe = { 642, 45438, } -- Divine Shield, Ice Block, BOP
 				for d = 1, #buffdispe do
 					for i = 1, #Cache.targets do
 						if ni.unit.buff(Cache.targets[i].guid, buffdispe[d])
