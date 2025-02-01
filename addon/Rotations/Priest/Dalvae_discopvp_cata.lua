@@ -409,14 +409,11 @@ if cata then
 		61780, -- Polymorph (Turkey)
 		28271, -- Polymorph (Turtle)
 
-		-- Priest
-		34914, -- Vampiric Touch
-
 		-- Warlock
 		6789, -- Death Coil (NO - es horror effect, no se puede dispellear)
 		5484, -- Fear
 		5782, -- Fear
-		34914 -- Vampiric Touch (duplicado, ya está en la sección de Priest)
+
 	}
 	local Cache = {
 		moving = false,
@@ -716,13 +713,13 @@ if cata then
 			if not UnitAffectingCombat("player") then
 				for i = 1, #Cache.members do
 					if Cache.members[i].hp() <= 95 and not ni.player.ismoving() then
-						if ni.spell.cd(spells.Penance.id) == 0 
-							and ValidUsable(spells.Penance.id, Cache.members[i].unit)
-							and LosCastStand(spells.Penance.name, Cache.members[i].unit) 
+						if ni.spell.cd(spells.Penance.id) == 0
+								and ValidUsable(spells.Penance.id, Cache.members[i].unit)
+								and LosCastStand(spells.Penance.name, Cache.members[i].unit)
 						then
 							return true
 						elseif ValidUsable(spells.FlashHeal.id, Cache.members[i].unit)
-							and LosCast(spells.FlashHeal.name, Cache.members[i].unit)
+								and LosCast(spells.FlashHeal.name, Cache.members[i].unit)
 						then
 							return true
 						end
