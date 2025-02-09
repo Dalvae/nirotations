@@ -49,6 +49,13 @@ if build == 30300 and level == 80 and data then
 		{ type = "separator" },
 		{ type = "entry",    text = "\124T" .. data.warrior.sundIcon() .. ":26:26\124t Sunder Armor",                                                                 tooltip = "Work only on bosses",                                      enabled = false, key = "sunder" },
 		{ type = "entry",    text = "\124T" .. data.warrior.heroIcon() .. ":26:26\124t  /  \124T" .. data.warrior.cleaveIcon() .. ":26:26\124t Heroic Strike/Cleave", tooltip = "Minimal rage threshold for use spells",                    value = 45,      key = "heroiccleave" },
+		{
+			type = "entry",
+			text = "\124T" .. data.warrior.rendIcon() .. ":26:26\124t Rend",
+			tooltip = "Use Rend on bosses",
+			enabled = false,
+			key = "rend"
+		},
 	};
 	local function GetSetting(name)
 		for k, v in ipairs(items) do
@@ -118,38 +125,71 @@ if build == 30300 and level == 80 and data then
 	local lastDesyncAttempt = 0
 	local desyncCooldown    = 5
 
+	-- Variables adicionales necesarias
+	local SWING_WINDOW_MIN  = 0.1 -- 100ms
+	local SWING_WINDOW_MAX  = 0.3 -- 300ms
+	local DESYNC_DELAY      = 1.5 -- 1.5 segundos para sincronizar con el próximo swing
+
+
+	-- Modificar AttemptDesync
 	local function AttemptDesync()
 		local currentTime = GetTime()
 		if currentTime - lastDesyncAttempt < desyncCooldown then
-			print("Desync on cooldown")
 			return
 		end
-
-		print("Attempting desync")
+		-- Ejecutar macro completo en un solo comando
 		ni.player.runtext("/cleartarget")
-		ni.player.runtext("/targetlasttarget")
-		ni.player.runtext("/startattack")
-		print("Desync attempt executed")
+		ni.C_Timer.After(0.1, function()
+			ni.player.runtext("/targetlasttarget")
+			ni.C_Timer.After(0.1, function()
+				ni.player.runtext("/startattack")
+			end)
+		end)
+
+		print("Desync executed at " .. currentTime)
+
 		lastDesyncAttempt = currentTime
 	end
-
 	local function CombatEventCatcher(event, ...)
 		if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-			local timestamp, eventType, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellId, spellName, spellSchool, amount, overkill, school, resisted, blocked, absorbed, critical, glancing, crushing = ...
+			local _, eventType, sourceGUID, _, _, _, _, _, spellId = ...
 			local playerGUID = UnitGUID(p)
 			local currentTime = GetTime()
 
 			if sourceGUID == playerGUID then
-				if eventType == "SWING_DAMAGE" or (eventType == "SPELL_DAMAGE" and spellId == spells.heroicStrike.id) then
-					if (currentTime - lastSwingTime) < 0.3 and (currentTime - lastSwingTime) > 0.1 then
+				-- Detectar cualquier swing físico o habilidad de siguiente ataque
+				if eventType == "SWING_DAMAGE"
+						or (eventType == "SPELL_DAMAGE"
+							and (spellId == spells.heroicStrike.id
+								or spellId == spells.cleave.id))
+				then
+					-- Calcular tiempo entre swings
+					local swingGap = currentTime - lastSwingTime
+
+					-- Ventana óptima para desincronización (0.1-0.3s entre swings)
+					if swingGap < 0.3 then
 						local _, enabled = GetSetting("autodesync")
 						if enabled then
-							print("Swing sync detected at " .. currentTime)
-							ni.C_Timer.After(1.5, AttemptDesync)
+							if ni.vars.debug then
+								print("Swing sync detected at " .. currentTime)
+							end
+							swingSync = true
+							-- Programar intento de desync después de un breve retraso
+							ni.C_Timer.After(2, function()
+								if swingSync then
+									AttemptDesync()
+									swingSync = false
+								end
+							end)
 						end
 					end
+
+					-- Actualizar último swing detectado
 					lastSwingTime = currentTime
-					print("Player swing occurred at " .. currentTime)
+
+					if ni.vars.debug then
+						print("Player swing occurred at " .. currentTime)
+					end
 				end
 			end
 		elseif event == "PLAYER_REGEN_DISABLED" then
@@ -159,6 +199,8 @@ if build == 30300 and level == 80 and data then
 			inCombat = false
 		end
 	end
+
+
 
 	-- DBM PrePull
 	local pullInTimer = nil
@@ -228,11 +270,11 @@ if build == 30300 and level == 80 and data then
 			DBM:RegisterCallback("DBM_TimerStart", DBMEventHandler)
 			DBM:RegisterCallback("DBM_TimerStop", DBMEventHandler)
 		end
-		-- ni.combatlog.registerhandler("Fury_DarhangeR", CombatEventCatcher);
+		ni.combatlog.registerhandler("Fury_DarhangeR", CombatEventCatcher);
 		ni.GUI.AddFrame("Fury_DarhangeR", items);
 	end
 	local function OnUnLoad()
-		-- ni.combatlog.unregisterhandler("Fury_DarhangeR", CombatEventCatcher);
+		ni.combatlog.unregisterhandler("Fury_DarhangeR", CombatEventCatcher);
 		ni.GUI.DestroyFrame("Fury_DarhangeR");
 	end
 
@@ -444,14 +486,12 @@ if build == 30300 and level == 80 and data then
 
 			if swingSync then
 				print("Swing sync detected, attempting desync")
-				ni.player.runtext("/cleartarget")
-				ni.player.runtext("/targetlasttarget")
-				ni.player.runtext("/startattack")
+				-- Macro unificado con saltos de línea
+				ni.player.runtext("/cleartarget\n/targetlasttarget\n/startattack")
 				lastDesyncAttempt = currentTime
 				swingSync = false
 				return true
 			end
-
 			return false
 		end,
 		-----------------------------------
@@ -788,8 +828,8 @@ if build == 30300 and level == 80 and data then
 			end
 		end,
 		["Rend"] = function()
-			local _, enabled = GetSetting("sunder")
-			if not ni.unit.isboss("target") or ni.unit.hp("target") < 20 then return false end
+			local _, enabled = GetSetting("rend")
+			if not enabled or not ni.unit.isboss("target") or ni.unit.hp("target") < 20 then return false end
 
 			local sunder, _, _, count = ni.unit.debuff("target", spells.sunderArmor.id)
 			if enabled and (not sunder or count < 5) then return false end
@@ -865,7 +905,7 @@ if build == 30300 and level == 80 and data then
 					and ni.unit.isboss(t)
 					and not ni.unit.debuff(t, 8647)
 					and (not sunder
-						or count < 5 or ni.unit.debuffremaining(t, spells.sunderArmor.id, p) < 4)
+						or count < 5 or ni.unit.debuffremaining(t, spells.sunderArmor.id) < 4)
 					and ni.spell.available(spells.sunderArmor.id)
 					and ni.spell.valid(t, spells.sunderArmor.id, true, true) then
 				ni.spell.cast(spells.sunderArmor.id, t)
@@ -878,7 +918,7 @@ if build == 30300 and level == 80 and data then
 			if enabled
 					and ni.unit.isboss(t)
 					and not ni.unit.debuff(t, 8647)
-					and ni.unit.debuffremaining(t, spells.sunderArmor.id, p) < 5
+					and ni.unit.debuffremaining(t, spells.sunderArmor.id) < 5
 					and ni.spell.available(spells.sunderArmor.id)
 					and ni.spell.valid(t, spells.sunderArmor.id, true, true) then
 				ni.spell.cast(spells.sunderArmor.id, t)
@@ -920,11 +960,3 @@ else
 	}
 	ni.bootstrap.profile("Fury_DarhangeR", queue, abilities);
 end
--- XT
--- Algalon
--- Aureya
--- Thorim
--- Hodir
--- Freya
--- Mimiron
--- Yogg
