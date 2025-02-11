@@ -154,13 +154,6 @@ local items = {
 		enabled = false,
 		key = "Dispel"
 	},
-	{
-		type = "entry",
-		text = "Combat Only",
-		tooltip = "Only let the routine run if your in combat",
-		enabled = enables["CombatOnly"],
-		key = "CombatOnly"
-	},
 	{type = "separator"},
 	{type = "title", text = "Tank Heal"},
 	{type = "title", text = "Lifebloom Target"},
@@ -168,17 +161,17 @@ local items = {
 		type = "dropdown",
 		menu = {
 			{
-				selected = (menus["LifebloomTar"] == 1),
+				selected = true,
 				value = 1,
 				text = "|cffFFFF33Main Tank"
 			},
 			{
-				selected = (menus["LifebloomTar"] == 2),
+				selected = false,
 				value = 2,
 				text = "|cffFF9900Off Tank"
 			},
 			{
-				selected = (menus["LifebloomTar"] == 3),
+				selected = false,
 				value = 3,
 				text = "|cff24E0FBFocus"
 			}
@@ -189,76 +182,8 @@ local items = {
 		type = "entry",
 		text = "Let Lifebloom Expire",
 		tooltip = "Allows lifebloom to expire instead of refreshing",
-		enabled = enables["LifebloomExpire"],
+		enabled = false,
 		key = "LifebloomExpire"
-	},
-	{
-		type = "entry",
-		text = "Regrowth Tank HP",
-		value = values["RegrowthTank"],
-		enabled = enables["RegrowthTank"],
-		key = "RegrowthTank"
-	},
-	{
-		type = "entry",
-		text = "Rejuvenation Tank HP",
-		value = values["RejuvenationTank"],
-		enabled = enables["RejuvenationTank"],
-		key = "RejuvenationTank"
-	},
-	{type = "separator"},
-	{type = "title", text = "Heals"},
-	{
-		type = "entry",
-		text = "Regrowth HP",
-		value = values["RegrowthHp"],
-		key = "RegrowthHp"
-	},
-	{
-		type = "entry",
-		text = "Rejuvenation HP",
-		value = values["RejuvenationHp"],
-		key = "RejuvenationHp"
-	},
-	{
-		type = "entry",
-		text = "Wild Growth HP",
-		value = values["WildGrowthHp"],
-		key = "WildGrowthHp"
-	},
-	{
-		type = "entry",
-		text = "Wild Growth AoE count",
-		tooltip = "The number of units nearby below set Hp%",
-		value = values["WildGrowthAoeCount"],
-		key = "WildGrowthAoeCount"
-	},
-	{
-		type = "entry",
-		text = "Nourish HP",
-		value = values["NourishHp"],
-		enabled = enables["NourishHp"],
-		key = "NourishHp"
-	},
-	{
-		type = "entry",
-		text = "Swiftmend HP",
-		value = values["SwiftmendHp"],
-		enabled = enables["SwiftmendHp"],
-		key = "SwiftmendHp"
-	},
-	{type = "separator"},
-	{
-		type = "entry",
-		text = "Innervate Mana%",
-		value = 60,
-		key = "Innervate"
-	},
-	{
-		type = "entry",
-		text = "Enable Dispel",
-		enabled = true,
-		key = "Dispel"
 	}
 }
 local function LosCast(spell, tar)
