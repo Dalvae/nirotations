@@ -637,11 +637,12 @@ if cata then
 		end,
 		["GreaterHealingWave"] = function()
 			if not Cache.moving then
-				local greaterHealingWaveHP = GetSetting("GreaterHealingWave")
+				local value, enabled = GetSetting("GreaterHealingWave")
+				if not enabled then return false end
 
 				for i = 1, #Cache.miembros do
 					local memberHP = ni.unit.hp(Cache.miembros[i].unit)
-					if memberHP <= greaterHealingWaveHP and
+					if memberHP <= value and
 							ValidUsable(spells.GreaterHealingWave.id, Cache.miembros[i].unit) and
 							LosCast(spells.GreaterHealingWave.name, Cache.miembros[i].unit) then
 						return true
@@ -651,11 +652,13 @@ if cata then
 		end,
 		["ChainHeal"] = function()
 			if ni.spell.available(spells.ChainHeal) and not Cache.moving then
-				local chainHealHP = GetSetting("ChainHealHP")
-				GetTableForBestUnit(chainHealHP, 10, 3)
+				local value, enabled = GetSetting("ChainHealHP")
+				if not enabled then return false end
+				
+				GetTableForBestUnit(value, 10, 3)
 				if #customtable > 0 then
 					if customtable[1].unitsclose >= 3 and ValidUsable(spells.ChainHeal.id, customtable[1].unit) then
-						if customtable[1].hp <= chainHealHP then
+						if customtable[1].hp <= value then
 							LosCast(spells.ChainHeal.name, customtable[1].unit)
 							return true
 						end
@@ -735,7 +738,8 @@ if cata then
 			end
 		end,
 		["CleanseSpirit"] = function()
-			if enables["CleanseSpirit"] and ni.spell.available(spells.CleanseSpirit.id) then
+			local _, enabled = GetSetting("CleanseSpirit")
+			if enabled and ni.spell.available(spells.CleanseSpirit.id) then
 				local ImprovedCleanseSpirit = GetTalentInfo(3, 12)
 				for c = 1, #Cache.miembros do
 					local tar = Cache.miembros[c].unit
