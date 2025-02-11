@@ -346,7 +346,8 @@ if cata then
 			if not enabled then return false end
 			
 			for i = 1, #ni.members do
-				if ni.members[i].hp < (value or 50) and
+				local memberHP = ni.unit.hp(ni.members[i].unit)
+				if memberHP < value and
 						(ni.unit.buff(ni.members[i].unit, spells.Regrowth.id, "player") or
 							ni.unit.buff(ni.members[i].unit, spells.Rejuvenation.id, "player")) and
 						ValidUsable(spells.Swiftmend.id, ni.members[i].unit) and
