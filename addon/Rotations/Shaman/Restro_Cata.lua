@@ -508,8 +508,9 @@ if cata then
 		end,
 		["Tank Heal"] = function()
 			local mainTank, offTank = ni.tanks()
+			local earthShieldTar = GetSetting("EarthShieldTar")
 			--Earthsheild focus
-			if (menus["EarthShieldTar"] == 3) and ni.unit.exists(f) then
+			if (earthShieldTar == 3) and ni.unit.exists(f) then
 				local es, _, _, esCount, _, _, esTime = ni.unit.buff(f, spells.EarthShield.id, p)
 				if
 						(not es or esTime - GetTime() < 2) and ValidUsable(spells.EarthShield.id, f) and LosCast(spells.EarthShield.name, f)
@@ -521,24 +522,26 @@ if cata then
 				--EarthShield mainTank
 				local esM, _, _, esMCount, _, _, esMTime = ni.unit.buff(mainTank, spells.EarthShield.id, p)
 				if
-						(not esM or esMCount < 2 or esMTime - GetTime() < 2) and (menus["EarthShieldTar"] == 1) and
+						(not esM or esMCount < 2 or esMTime - GetTime() < 2) and (earthShieldTar == 1) and
 						ValidUsable(spells.EarthShield.id, mainTank) and
 						LosCast(spells.EarthShield.name, mainTank)
 				then
 					return true
 				end
 				--Riptide mainTank
+				local riptideTankValue, riptideTankEnabled = GetSetting("RiptideTank")
 				if
-						enables["RiptideTank"] and not ni.unit.buff(mainTank, spells.Riptide.id, p) and
-						ni.unit.hp(mainTank) <= values["RiptideTank"] and
+						riptideTankEnabled and not ni.unit.buff(mainTank, spells.Riptide.id, p) and
+						ni.unit.hp(mainTank) <= riptideTankValue and
 						ValidUsable(spells.Riptide.id, mainTank) and
 						LosCast(spells.Riptide.name, mainTank)
 				then
 					return true
 				end
 				--HealingSurge mainTank
+				local healingSurgeTankValue, healingSurgeTankEnabled = GetSetting("HealingSurgeTank")
 				if
-						enables["HealingSurgeTank"] and not Cache.moving and ni.unit.hp(mainTank) <= values["HealingSurgeTank"] and
+						healingSurgeTankEnabled and not Cache.moving and ni.unit.hp(mainTank) <= healingSurgeTankValue and
 						ValidUsable(spells.HealingSurge.id, mainTank) and
 						LosCast(spells.HealingSurge.name, mainTank)
 				then
@@ -549,7 +552,7 @@ if cata then
 					--EarthShield offTank
 					local esO, _, _, esOCount, _, _, esOTime = ni.unit.buff(offTank, spells.EarthShield.id, p)
 					if
-							(menus["EarthShieldTar"] == 2) and not Cache.moving and (not esO or esOCount < 2 or esOTime - GetTime() < 2) and
+							(earthShieldTar == 2) and not Cache.moving and (not esO or esOCount < 2 or esOTime - GetTime() < 2) and
 							ValidUsable(spells.EarthShield.id, offTank) and
 							LosCast(spells.EarthShield.name, offTank)
 					then
@@ -557,7 +560,7 @@ if cata then
 					end
 					--Riptide offTank
 					if
-							enables["RiptideTank"] and ni.unit.hp(offTank) <= values["RiptideTank"] and
+							riptideTankEnabled and ni.unit.hp(offTank) <= riptideTankValue and
 							not ni.unit.buff(offTank, spells.Riptide.id, p) and
 							ValidUsable(spells.Riptide.id, offTank) and
 							LosCast(spells.Riptide.name, offTank)
@@ -566,7 +569,7 @@ if cata then
 					end
 					--HealingSurge offTank
 					if
-							enables["HealingSurgeTank"] and not Cache.moving and ni.unit.hp(offTank) <= values["HealingSurgeTank"] and
+							healingSurgeTankEnabled and not Cache.moving and ni.unit.hp(offTank) <= healingSurgeTankValue and
 							ValidUsable(spells.HealingSurge.id, mainTank) and
 							LosCast(spells.HealingSurge.name, mainTank)
 					then
@@ -591,11 +594,13 @@ if cata then
 			return false
 		end,
 		["HealingStreamTotem"] = function()
-			if
-					not enables["MultiTotem"] and (not GetTotemInfo(Totem.Water) or TotemDistance(spells.HealingStreamTotem.name, p) > 20) and
+			local _, healingStreamTotemEnabled = GetSetting("HealingStreamTotem")
+			local _, multiTotemEnabled = GetSetting("MultiTotem")
+
+			if not multiTotemEnabled and healingStreamTotemEnabled and
+					(not GetTotemInfo(Totem.Water) or TotemDistance(spells.HealingStreamTotem.name, p) > 20) and
 					ni.spell.available(spells.HealingStreamTotem.id) and
-					#Cache.miembros.inrangebelow(p, 40, 95) > 0
-			then
+					#Cache.miembros.inrangebelow(p, 40, 95) > 0 then
 				ni.spell.cast(spells.HealingStreamTotem.name)
 			end
 		end,
@@ -632,12 +637,13 @@ if cata then
 		end,
 		["GreaterHealingWave"] = function()
 			if not Cache.moving then
+				local value = GetSetting("GreaterHealingWave")
+
 				for i = 1, #Cache.miembros do
-					if
-							Cache.miembros[i].hp <= values["GreaterHealingWave"] and
+					local memberHP = ni.unit.hp(Cache.miembros[i].unit)
+					if memberHP <= value and
 							ValidUsable(spells.GreaterHealingWave.id, Cache.miembros[i].unit) and
-							LosCast(spells.GreaterHealingWave.name, Cache.miembros[i].unit)
-					then
+							LosCast(spells.GreaterHealingWave.name, Cache.miembros[i].unit) then
 						return true
 					end
 				end
