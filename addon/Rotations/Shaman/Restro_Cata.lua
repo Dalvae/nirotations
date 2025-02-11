@@ -474,8 +474,7 @@ if cata then
 			end
 		end,
 		["Cache"] = function()
-			ni.vars.debug = select(2, GetSetting("Debug")) -- Obtiene el estado del debug desde la GUI
-			ni.vars.debug = true                        -- Habilitamos debug
+			ni.vars.debug = select(2, GetSetting("Debug"))
 			Cache.moving = ni.player.ismoving()
 			Cache.miembros = ni.members.sort()
 		end,
