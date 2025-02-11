@@ -626,7 +626,8 @@ if cata then
 
 		["HealingWave"] = function()
 			if not Cache.moving then
-				local value, enabled = GetSetting("HealingWaveHP")
+				local value = GetSetting("HealingWaveHP")
+				local enabled = GetSetting("HealingWaveHP", "enabled")
 				if not enabled then return false end
 
 				for i = 1, #Cache.miembros do
@@ -768,7 +769,7 @@ else
 		["Error"] = function()
 			ni.vars.profiles.enabled = false;
 			if not cata then
-				ni.frames.floatingtext:message("This profile for Cata!")
+				ni.frames.floatingtext:message("This profile is for Cata!")
 			end
 		end,
 	};
