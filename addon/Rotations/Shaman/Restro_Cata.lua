@@ -529,7 +529,8 @@ if cata then
 					return true
 				end
 				--Riptide mainTank
-				local riptideTankValue, riptideTankEnabled = GetSetting("RiptideTank")
+				local riptideTankValue = GetSetting("RiptideTank")
+				local riptideTankEnabled = GetSetting("RiptideTank", "enabled")
 				if
 						riptideTankEnabled and not ni.unit.buff(mainTank, spells.Riptide.id, p) and
 						ni.unit.hp(mainTank) <= riptideTankValue and
@@ -539,7 +540,8 @@ if cata then
 					return true
 				end
 				--HealingSurge mainTank
-				local healingSurgeTankValue, healingSurgeTankEnabled = GetSetting("HealingSurgeTank")
+				local healingSurgeTankValue = GetSetting("HealingSurgeTank")
+				local healingSurgeTankEnabled = GetSetting("HealingSurgeTank", "enabled")
 				if
 						healingSurgeTankEnabled and not Cache.moving and ni.unit.hp(mainTank) <= healingSurgeTankValue and
 						ValidUsable(spells.HealingSurge.id, mainTank) and
@@ -570,8 +572,8 @@ if cata then
 					--HealingSurge offTank
 					if
 							healingSurgeTankEnabled and not Cache.moving and ni.unit.hp(offTank) <= healingSurgeTankValue and
-							ValidUsable(spells.HealingSurge.id, mainTank) and
-							LosCast(spells.HealingSurge.name, mainTank)
+							ValidUsable(spells.HealingSurge.id, offTank) and
+							LosCast(spells.HealingSurge.name, offTank)
 					then
 						return true
 					end
@@ -579,7 +581,8 @@ if cata then
 			end
 		end,
 		["Riptide"] = function()
-			local value, enabled = GetSetting("RiptideHP")
+			local value = GetSetting("RiptideHP")
+			local enabled = GetSetting("RiptideHP", "enabled")
 			if not enabled then return false end
 
 			for i = 1, #Cache.miembros do
@@ -594,8 +597,8 @@ if cata then
 			return false
 		end,
 		["HealingStreamTotem"] = function()
-			local _, healingStreamTotemEnabled = GetSetting("HealingStreamTotem")
-			local _, multiTotemEnabled = GetSetting("MultiTotem")
+			local healingStreamTotemEnabled = GetSetting("HealingStreamTotem", "enabled")
+			local multiTotemEnabled = GetSetting("MultiTotem", "enabled")
 
 			if not multiTotemEnabled and healingStreamTotemEnabled and
 					(not GetTotemInfo(Totem.Water) or TotemDistance(spells.HealingStreamTotem.name, p) > 20) and
@@ -606,7 +609,8 @@ if cata then
 		end,
 		["HealingSurge"] = function()
 			if not Cache.moving then
-				local value, enabled = GetSetting("HealingSurgeHP")
+				local value = GetSetting("HealingSurgeHP")
+				local enabled = GetSetting("HealingSurgeHP", "enabled")
 				if not enabled then return false end
 
 				for i = 1, #Cache.miembros do
