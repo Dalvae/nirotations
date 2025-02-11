@@ -57,6 +57,89 @@ local items = {
 		type = "entry",
 		text = "Combat Only",
 		tooltip = "Only let the routine run if your in combat",
+		enabled = true,
+		key = "CombatOnly"
+	},
+	{type = "separator"},
+	{type = "title", text = "Tank Heal"},
+	{
+		type = "entry",
+		text = "Regrowth Tank HP",
+		value = 85,
+		enabled = true,
+		key = "RegrowthTank"
+	},
+	{
+		type = "entry",
+		text = "Rejuvenation Tank HP",
+		value = 92,
+		enabled = true,
+		key = "RejuvenationTank"
+	},
+	{
+		type = "entry",
+		text = "Let Lifebloom Expire",
+		tooltip = "Allows lifebloom to expire instead of refreshing",
+		enabled = false,
+		key = "LifebloomExpire"
+	},
+	{type = "separator"},
+	{type = "title", text = "Heals"},
+	{
+		type = "entry",
+		text = "Regrowth HP",
+		value = 80,
+		key = "RegrowthHp"
+	},
+	{
+		type = "entry",
+		text = "Rejuvenation HP",
+		value = 90,
+		key = "RejuvenationHp"
+	},
+	{
+		type = "entry",
+		text = "Wild Growth HP",
+		value = 90,
+		key = "WildGrowthHp"
+	},
+	{
+		type = "entry",
+		text = "Wild Growth AoE count",
+		tooltip = "The number of units nearby below set Hp%",
+		value = 2,
+		key = "WildGrowthAoeCount"
+	},
+	{
+		type = "entry",
+		text = "Nourish HP",
+		value = 75,
+		enabled = true,
+		key = "NourishHp"
+	},
+	{
+		type = "entry",
+		text = "Swiftmend HP",
+		value = 50,
+		enabled = true,
+		key = "SwiftmendHp"
+	},
+	{
+		type = "entry",
+		text = "Innervate Mana%",
+		value = 60,
+		key = "Innervate"
+	},
+	{
+		type = "entry",
+		text = "Enable Dispel",
+		enabled = false,
+		key = "Dispel"
+	},
+	{
+		type = "entry",
+		text = "Combat Only",
+		tooltip = "Only let the routine run if your in combat",
 		enabled = enables["CombatOnly"],
 		key = "CombatOnly"
 	},
