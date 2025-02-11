@@ -281,22 +281,22 @@ if cata then
 			key = "Debug"
 		}
 	}
-	local function GUICallback(key, item_type, value)
-		for _, v in ipairs(items) do
-			if v.key == key then
-				if item_type == "enabled" then
-					v.enabled = value
-				elseif item_type == "value" then
-					v.value = value
-				elseif item_type == "menu" then
-					for _, menuItem in pairs(v.menu) do
-						menuItem.selected = (menuItem.value == value)
-					end
-				end
-				break
-			end
-		end
-	end
+	-- local function GUICallback(key, item_type, value)
+	-- 	for _, v in ipairs(items) do
+	-- 		if v.key == key then
+	-- 			if item_type == "enabled" then
+	-- 				v.enabled = value
+	-- 			elseif item_type == "value" then
+	-- 				v.value = value
+	-- 			elseif item_type == "menu" then
+	-- 				for _, menuItem in pairs(v.menu) do
+	-- 					menuItem.selected = (menuItem.value == value)
+	-- 				end
+	-- 			end
+	-- 			break
+	-- 		end
+	-- 	end
+	-- end
 
 
 	local function GetSetting(name)
@@ -654,7 +654,7 @@ if cata then
 			if ni.spell.available(spells.ChainHeal) and not Cache.moving then
 				local value, enabled = GetSetting("ChainHealHP")
 				if not enabled then return false end
-				
+
 				GetTableForBestUnit(value, 10, 3)
 				if #customtable > 0 then
 					if customtable[1].unitsclose >= 3 and ValidUsable(spells.ChainHeal.id, customtable[1].unit) then
@@ -683,7 +683,7 @@ if cata then
 		end,
 		["EarthShock"] = function()
 			local _, enabled = GetSetting("EarthShock")
-			if enabled and ValidUsableEnemy(spells.EarthShock.id, t) and 
+			if enabled and ValidUsableEnemy(spells.EarthShock.id, t) and
 					FacingLosCast(spells.EarthShock.name, t) then
 				return true
 			end
@@ -706,7 +706,7 @@ if cata then
 		end,
 		["SearingTotem"] = function()
 			local _, multiTotemEnabled = GetSetting("MultiTotem")
-			local _, searingTotemEnabled = GetSetting("SearingTotem") 
+			local _, searingTotemEnabled = GetSetting("SearingTotem")
 			if not multiTotemEnabled and searingTotemEnabled and ni.spell.available(spells.SearingTotem.id) and
 					(not HasTotemName(Totem.Fire, spells.SearingTotem.name) or TotemDistance(spells.SearingTotem.name, t) > 38) and
 					IsSpellInRange(spells.LightningBolt.name, t) == 1 then
