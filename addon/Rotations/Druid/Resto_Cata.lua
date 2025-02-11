@@ -343,19 +343,19 @@ if cata then
 		end,
 		["Swiftmend"] = function()
 			local value, enabled = GetSetting("SwiftmendHp")
-			if enabled then
-				for i = 1, #ni.members do
-					if
-							ni.members[i].hp < value and
-							(ni.unit.buff(ni.members[i].unit, spells.Regrowth.id, "player") or
-								ni.unit.buff(ni.members[i].unit, spells.Rejuvenation.id, "player")) and
-							ValidUsable(spells.Swiftmend.id, ni.members[i].unit) and
-							LosCast(spells.Swiftmend.name, ni.members[i].unit)
-					then
-						return true
-					end
+			if not enabled then return false end
+			
+			for i = 1, #ni.members do
+				if ni.members[i].hp < (value or 50) and
+						(ni.unit.buff(ni.members[i].unit, spells.Regrowth.id, "player") or
+							ni.unit.buff(ni.members[i].unit, spells.Rejuvenation.id, "player")) and
+						ValidUsable(spells.Swiftmend.id, ni.members[i].unit) and
+						LosCast(spells.Swiftmend.name, ni.members[i].unit)
+				then
+					return true
 				end
 			end
+			return false
 		end,
 		["Innervate"] = function()
 			local value = GetSetting("Innervate")
