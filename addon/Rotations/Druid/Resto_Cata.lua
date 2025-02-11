@@ -30,46 +30,26 @@ local spells = {
 	Innervate = {id = 29166, name = GetSpellInfo(29166)}
 }
 
-local enables = {
-	["RegrowthTank"] = true,
-	["RejuvenationTank"] = true,
-	["NourishHp"] = true,
-	["SwiftmendHp"] = true,
-	["Dispel"] = false,
-	["CombatOnly"] = true,
-	["LifebloomExpire"] = false
-}
-local values = {
-	["RegrowthTank"] = 85,
-	["RejuvenationTank"] = 92,
-	["RegrowthHp"] = 80,
-	["RejuvenationHp"] = 90,
-	["WildGrowthHp"] = 90,
-	["WildGrowthAoeCount"] = 2,
-	["NourishHp"] = 75,
-	["SwiftmendHp"] = 50,
-	["Innervate"] = 60
-}
-local inputs = {}
-local menus = {
-	["LifebloomTar"] = 1
-}
-
-local function GUICallback(key, item_type, value)
-	if item_type == "enabled" then
-		enables[key] = value
-	elseif item_type == "value" then
-		values[key] = value
-	elseif item_type == "input" then
-		inputs[key] = value
-	elseif item_type == "menu" then
-		menus[key] = value
+local function GetSetting(name)
+	for k, v in ipairs(items) do
+		if v.type == "entry" and v.key ~= nil and v.key == name then
+			return v.value, v.enabled
+		end
+		if v.type == "dropdown" and v.key ~= nil and v.key == name then
+			for k2, v2 in pairs(v.menu) do
+				if v2.selected then
+					return v2.value
+				end
+			end
+		end
+		if v.type == "input" and v.key ~= nil and v.key == name then
+			return v.value
+		end
 	end
 end
 
 local items = {
 	settingsfile = "rDruidCata.xml",
-	callback = GUICallback,
 	{type = "title", text = "Resto Druid Cata"},
 	{type = "separator"},
 	{type = "title", text = "Combat Only"},
