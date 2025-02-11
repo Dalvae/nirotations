@@ -690,7 +690,7 @@ if cata then
 		end,
 		["LavaBurst"] = function()
 			if
-					enables["LavaBurst"] and not Cache.moving and ValidUsableEnemy(spells.LavaBurst.id, t) and
+					GetSetting("LavaBurst", "enabled") and not Cache.moving and ValidUsableEnemy(spells.LavaBurst.id, t) and
 					ni.unit.debuffremaining(t, spells.FlameShock.id, p) > 2 and
 					FacingLosCast(spells.LavaBurst.name, t)
 			then
@@ -699,7 +699,7 @@ if cata then
 		end,
 		["FlameShock"] = function()
 			if
-					enables["FlameShock"] and ValidUsableEnemy(spells.FlameShock.id, t) and
+					GetSetting("FlameShock", "enabled") and ValidUsableEnemy(spells.FlameShock.id, t) and
 					ni.unit.debuffremaining(t, spells.FlameShock.id, p) < 2 and
 					FacingLosCast(spells.FlameShock.name, t)
 			then
@@ -708,7 +708,7 @@ if cata then
 		end,
 		["SearingTotem"] = function()
 			if
-					not enables["MultiTotem"] and enables["SearingTotem"] and ni.spell.available(spells.SearingTotem.id) and
+					not GetSetting("MultiTotem", "enabled") and GetSetting("SearingTotem", "enabled") and ni.spell.available(spells.SearingTotem.id) and
 					(not HasTotemName(Totem.Fire, spells.SearingTotem.name) or TotemDistance(spells.SearingTotem.name, t) > 38) and
 					IsSpellInRange(spells.LightningBolt.name, t) == 1
 			then
@@ -716,21 +716,22 @@ if cata then
 			end
 		end,
 		["CalloftheTotems"] = function()
-			if enables["MultiTotem"] then
+			if GetSetting("MultiTotem", "enabled") then
 				if (AnyTotemDistance(p) > 30) and ni.spell.available(spells.TotemicRecall.id) then
 					ni.spell.cast(spells.TotemicRecall.name)
 					return true
 				end
 				if not HasTotem(Totem.Water) and incombat then
-					if menus.Callofthe == Callofthe.Elements and ni.spell.available(spells.CalloftheElements.id) then
+					local callofthe = GetSetting("Callofthe")
+					if callofthe == Callofthe.Elements and ni.spell.available(spells.CalloftheElements.id) then
 						ni.spell.cast(spells.CalloftheElements.name)
 						return true
 					end
-					if menus.Callofthe == Callofthe.Ancestors and ni.spell.available(spells.CalloftheAncestors.id) then
+					if callofthe == Callofthe.Ancestors and ni.spell.available(spells.CalloftheAncestors.id) then
 						ni.spell.cast(spells.CalloftheAncestors.name)
 						return true
 					end
-					if menus.Callofthe == Callofthe.Spirits and ni.spell.available(spells.CalloftheSpirits.id) then
+					if callofthe == Callofthe.Spirits and ni.spell.available(spells.CalloftheSpirits.id) then
 						ni.spell.cast(spells.CalloftheSpirits.name)
 						return true
 					end
