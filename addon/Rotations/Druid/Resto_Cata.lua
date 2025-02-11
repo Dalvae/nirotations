@@ -1,6 +1,7 @@
 local build = select(4, GetBuildInfo());
 local cata = build == 40300 or false;
 if cata then
+
 local queue = {
 	"Pause",
 	"Innervate", 
@@ -13,23 +14,6 @@ local queue = {
 	"Nourish"
 }
 
-local function GetSetting(name)
-	for k, v in ipairs(items) do
-		if v.type == "entry" and v.key ~= nil and v.key == name then
-			return v.value, v.enabled
-		end
-		if v.type == "dropdown" and v.key ~= nil and v.key == name then
-			for k2, v2 in pairs(v.menu) do
-				if v2.selected then
-					return v2.value
-				end
-			end
-		end
-		if v.type == "input" and v.key ~= nil and v.key == name then
-			return v.value
-		end
-	end
-end
 
 local spells = {
 	--Restoration
