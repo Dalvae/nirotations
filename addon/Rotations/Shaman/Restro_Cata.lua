@@ -675,42 +675,41 @@ if cata then
 			end
 		end,
 		["LightningBolt"] = function()
-			if
-					GetSetting("LightningBolt", "enabled") and not Cache.moving and ValidUsableEnemy(spells.LightningBolt.id, t) and
-					FacingLosCast(spells.LightningBolt.name, t)
-			then
+			local _, enabled = GetSetting("LightningBolt")
+			if enabled and not Cache.moving and ValidUsableEnemy(spells.LightningBolt.id, t) and
+					FacingLosCast(spells.LightningBolt.name, t) then
 				return true
 			end
 		end,
 		["EarthShock"] = function()
-			if GetSetting("EarthShock", "enabled") and ValidUsableEnemy(spells.EarthShock.id, t) and FacingLosCast(spells.EarthShock.name, t) then
+			local _, enabled = GetSetting("EarthShock")
+			if enabled and ValidUsableEnemy(spells.EarthShock.id, t) and 
+					FacingLosCast(spells.EarthShock.name, t) then
 				return true
 			end
 		end,
 		["LavaBurst"] = function()
-			if
-					GetSetting("LavaBurst", "enabled") and not Cache.moving and ValidUsableEnemy(spells.LavaBurst.id, t) and
+			local _, enabled = GetSetting("LavaBurst")
+			if enabled and not Cache.moving and ValidUsableEnemy(spells.LavaBurst.id, t) and
 					ni.unit.debuffremaining(t, spells.FlameShock.id, p) > 2 and
-					FacingLosCast(spells.LavaBurst.name, t)
-			then
+					FacingLosCast(spells.LavaBurst.name, t) then
 				return true
 			end
 		end,
 		["FlameShock"] = function()
-			if
-					GetSetting("FlameShock", "enabled") and ValidUsableEnemy(spells.FlameShock.id, t) and
+			local _, enabled = GetSetting("FlameShock")
+			if enabled and ValidUsableEnemy(spells.FlameShock.id, t) and
 					ni.unit.debuffremaining(t, spells.FlameShock.id, p) < 2 and
-					FacingLosCast(spells.FlameShock.name, t)
-			then
+					FacingLosCast(spells.FlameShock.name, t) then
 				return true
 			end
 		end,
 		["SearingTotem"] = function()
-			if
-					not GetSetting("MultiTotem", "enabled") and GetSetting("SearingTotem", "enabled") and ni.spell.available(spells.SearingTotem.id) and
+			local _, multiTotemEnabled = GetSetting("MultiTotem")
+			local _, searingTotemEnabled = GetSetting("SearingTotem") 
+			if not multiTotemEnabled and searingTotemEnabled and ni.spell.available(spells.SearingTotem.id) and
 					(not HasTotemName(Totem.Fire, spells.SearingTotem.name) or TotemDistance(spells.SearingTotem.name, t) > 38) and
-					IsSpellInRange(spells.LightningBolt.name, t) == 1
-			then
+					IsSpellInRange(spells.LightningBolt.name, t) == 1 then
 				ni.spell.cast(spells.SearingTotem.name)
 			end
 		end,
