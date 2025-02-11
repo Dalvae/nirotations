@@ -293,15 +293,16 @@ local function OnUnload()
 end
 local abilities = {
 	["Pause"] = function()
-		if IsMounted() or UnitIsDeadOrGhost("player") or (enables["CombatOnly"] and not incombat) then
+		local _, combatOnlyEnabled = GetSetting("CombatOnly")
+		if IsMounted() or UnitIsDeadOrGhost("player") or (combatOnlyEnabled and not incombat) then
 			return true
 		end
 	end,
 	["Tank Heal"] = function()
 		local mainTank, offTank = ni.tanks()
-		local lbTar = menus["LifebloomTar"]
-		local rjTankValue, rjEnabled = values["RejuvenationTank"], enables["RejuvenationTank"]
-		local rgTankValue, rgEnabled = values["RegrowthTank"], enables["RegrowthTank"]
+		local lbTar = GetSetting("LifebloomTar")
+		local rjTankValue, rjEnabled = GetSetting("RejuvenationTank")
+		local rgTankValue, rgEnabled = GetSetting("RegrowthTank")
 		--Lifebloom focus
 		if lbTar == 3 and ni.unit.exists("focus") then
 			local lbftank, _, _, lbftank_count, _, _, lbftank_time = ni.unit.buff("focus", spells.Lifebloom.id, "player")
