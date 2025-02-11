@@ -641,11 +641,11 @@ if cata then
 		end,
 		["GreaterHealingWave"] = function()
 			if not Cache.moving then
-				local value = GetSetting("GreaterHealingWave")
+				local greaterHealingWaveHP = GetSetting("GreaterHealingWave")
 
 				for i = 1, #Cache.miembros do
 					local memberHP = ni.unit.hp(Cache.miembros[i].unit)
-					if memberHP <= value and
+					if memberHP <= greaterHealingWaveHP and
 							ValidUsable(spells.GreaterHealingWave.id, Cache.miembros[i].unit) and
 							LosCast(spells.GreaterHealingWave.name, Cache.miembros[i].unit) then
 						return true
@@ -655,10 +655,11 @@ if cata then
 		end,
 		["ChainHeal"] = function()
 			if ni.spell.available(spells.ChainHeal) and not Cache.moving then
-				GetTableForBestUnit(values["ChainHealHP"], 10, 3)
+				local chainHealHP = GetSetting("ChainHealHP")
+				GetTableForBestUnit(chainHealHP, 10, 3)
 				if #customtable > 0 then
 					if customtable[1].unitsclose >= 3 and ValidUsable(spells.ChainHeal.id, customtable[1].unit) then
-						if customtable[1].hp <= values["ChainHealHP"] then
+						if customtable[1].hp <= chainHealHP then
 							LosCast(spells.ChainHeal.name, customtable[1].unit)
 							return true
 						end
@@ -676,14 +677,14 @@ if cata then
 		end,
 		["LightningBolt"] = function()
 			if
-					enables["LightningBolt"] and not Cache.moving and ValidUsableEnemy(spells.LightningBolt.id, t) and
+					GetSetting("LightningBolt", "enabled") and not Cache.moving and ValidUsableEnemy(spells.LightningBolt.id, t) and
 					FacingLosCast(spells.LightningBolt.name, t)
 			then
 				return true
 			end
 		end,
 		["EarthShock"] = function()
-			if enables["EarthShock"] and ValidUsableEnemy(spells.EarthShock.id, t) and FacingLosCast(spells.EarthShock.name, t) then
+			if GetSetting("EarthShock", "enabled") and ValidUsableEnemy(spells.EarthShock.id, t) and FacingLosCast(spells.EarthShock.name, t) then
 				return true
 			end
 		end,
