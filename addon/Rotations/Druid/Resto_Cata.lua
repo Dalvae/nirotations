@@ -275,7 +275,7 @@ local abilities = {
 				local rjotank, _, _, _, _, _, rjotank_time = ni.unit.buff(offTank, spells.Rejuvenation.id, "player")
 				--Lifebloom offTank
 				if
-					(not lbotank or lbotank_count < 3 or (not enables["LifebloomExpire"] and lbotank_time - GetTime() < 2)) and
+					(not lbotank or lbotank_count < 3 or (not select(2, GetSetting("LifebloomExpire")) and lbotank_time - GetTime() < 2)) and
 						lbTar == 2 and
 						ValidUsable(spells.Lifebloom.id, offTank) and
 						LosCast(spells.Lifebloom.name, offTank)
