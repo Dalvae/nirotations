@@ -299,12 +299,12 @@ if cata then
 		end,
 		["Rejuvenation"] = function()
 			local value = GetSetting("RejuvenationHp")
-			for i = 1, #ni.members do
+			for i = 1, #Cache.miembros do
 				if
-						ni.members[i].hp <= value and
-						not ni.unit.buff(ni.members[i].unit, spells.Rejuvenation.id, "player") and
-						ValidUsable(spells.Rejuvenation.id, ni.members[i].unit) and
-						LosCast(spells.Rejuvenation.name, ni.members[i].unit)
+						Cache.miembros[i].hp <= value and
+						not ni.unit.buff(Cache.miembros[i].unit, spells.Rejuvenation.id, "player") and
+						ValidUsable(spells.Rejuvenation.id, Cache.miembros[i].unit) and
+						LosCast(spells.Rejuvenation.name, Cache.miembros[i].unit)
 				then
 					return true
 				end
@@ -313,11 +313,11 @@ if cata then
 		["Regrowth"] = function()
 			if not ni.player.ismoving() then
 				local value = GetSetting("RegrowthHp")
-				for i = 1, #ni.members do
+				for i = 1, #Cache.miembros do
 					if
-							ni.members[i].hp <= value and not ni.unit.buff(ni.members[i].unit, spells.Regrowth.id, "player") and
-							ValidUsable(spells.Regrowth.id, ni.members[i].unit) and
-							LosCast(spells.Regrowth.name, ni.members[i].unit)
+							Cache.miembros[i].hp <= value and not ni.unit.buff(Cache.miembros[i].unit, spells.Regrowth.id, "player") and
+							ValidUsable(spells.Regrowth.id, Cache.miembros[i].unit) and
+							LosCast(spells.Regrowth.name, Cache.miembros[i].unit)
 					then
 						return true
 					end
@@ -340,10 +340,10 @@ if cata then
 		["Nourish"] = function()
 			local value, enabled = GetSetting("NourishHp")
 			if enabled and not ni.player.ismoving() then
-				for i = 1, #ni.members do
+				for i = 1, #Cache.miembros do
 					if
-							ni.members[i].hp < value and ValidUsable(spells.Nourish.id, ni.members[i].unit) and
-							LosCast(spells.Nourish.name, ni.members[i].unit)
+							Cache.miembros[i].hp < value and ValidUsable(spells.Nourish.id, Cache.miembros[i].unit) and
+							LosCast(spells.Nourish.name, Cache.miembros[i].unit)
 					then
 						return true
 					end
@@ -380,8 +380,8 @@ if cata then
 			local _, enabled = GetSetting("Dispel")
 			if enabled then
 				local naturesCure = GetTalentInfo(3, 17)
-				for t = 1, #ni.members do
-					local tar = ni.members[t].unit
+				for t = 1, #Cache.miembros do
+					local tar = Cache.miembros[t].unit
 					local i = 1
 					local debuff = UnitDebuff(tar, i)
 					while debuff do
