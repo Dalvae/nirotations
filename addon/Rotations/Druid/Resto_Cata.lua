@@ -3,6 +3,7 @@ local cata = build == 40300 or false;
 if cata then
 	local queue = {
 		"Pause",
+		"Cache",
 		"Innervate",
 		"Swiftmend",
 		"WildGrowth",
@@ -200,12 +201,20 @@ if cata then
 		ni.combatlog.unregisterhandler("RestroCata")
 		ni.GUI.DestroyFrame("RestroCata")
 	end
+	local Cache = {
+		moving = false,
+		miembros = {}
+	}
 	local abilities = {
 		["Pause"] = function()
 			local _, combatOnlyEnabled = GetSetting("CombatOnly")
 			if IsMounted() or UnitIsDeadOrGhost("player") or (combatOnlyEnabled and not incombat) then
 				return true
 			end
+		end,
+		["Cache"] = function()
+			Cache.moving = ni.player.ismoving()
+			Cache.miembros = ni.members.sort()
 		end,
 		["Tank Heal"] = function()
 			local mainTank, offTank = ni.tanks()
@@ -344,7 +353,7 @@ if cata then
 		["Swiftmend"] = function()
 			local value, enabled = GetSetting("SwiftmendHp")
 			if not enabled then return false end
-			
+
 			for i = 1, #ni.members do
 				local memberHP = ni.unit.hp(ni.members[i].unit)
 				if memberHP < value and
