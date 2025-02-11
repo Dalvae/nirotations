@@ -300,8 +300,9 @@ if cata then
 		["Rejuvenation"] = function()
 			local value = GetSetting("RejuvenationHp")
 			for i = 1, #Cache.miembros do
+				local memberHP = ni.unit.hp(Cache.miembros[i].unit)
 				if
-						Cache.miembros[i].hp <= value and
+						memberHP <= value and
 						not ni.unit.buff(Cache.miembros[i].unit, spells.Rejuvenation.id, "player") and
 						ValidUsable(spells.Rejuvenation.id, Cache.miembros[i].unit) and
 						LosCast(spells.Rejuvenation.name, Cache.miembros[i].unit)
@@ -342,8 +343,9 @@ if cata then
 			local value, enabled = GetSetting("NourishHp")
 			if enabled and not ni.player.ismoving() then
 				for i = 1, #Cache.miembros do
+					local memberHP = ni.unit.hp(Cache.miembros[i].unit)
 					if
-							Cache.miembros[i].hp < value and ValidUsable(spells.Nourish.id, Cache.miembros[i].unit) and
+							memberHP < value and ValidUsable(spells.Nourish.id, Cache.miembros[i].unit) and
 							LosCast(spells.Nourish.name, Cache.miembros[i].unit)
 					then
 						return true
