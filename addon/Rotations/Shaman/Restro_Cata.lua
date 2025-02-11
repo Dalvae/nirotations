@@ -529,8 +529,7 @@ if cata then
 					return true
 				end
 				--Riptide mainTank
-				local riptideTankValue = GetSetting("RiptideTank")
-				local riptideTankEnabled = GetSetting("RiptideTank", "enabled")
+				local riptideTankValue, riptideTankEnabled = GetSetting("RiptideTank")
 				if
 						riptideTankEnabled and not ni.unit.buff(mainTank, spells.Riptide.id, p) and
 						ni.unit.hp(mainTank) <= riptideTankValue and
@@ -540,8 +539,7 @@ if cata then
 					return true
 				end
 				--HealingSurge mainTank
-				local healingSurgeTankValue = GetSetting("HealingSurgeTank")
-				local healingSurgeTankEnabled = GetSetting("HealingSurgeTank", "enabled")
+				local healingSurgeTankValue, healingSurgeTankEnabled = GetSetting("HealingSurgeTank")
 				if
 						healingSurgeTankEnabled and not Cache.moving and ni.unit.hp(mainTank) <= healingSurgeTankValue and
 						ValidUsable(spells.HealingSurge.id, mainTank) and
