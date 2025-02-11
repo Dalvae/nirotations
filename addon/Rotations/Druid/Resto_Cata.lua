@@ -355,13 +355,13 @@ if cata then
 			local value, enabled = GetSetting("SwiftmendHp")
 			if not enabled then return false end
 
-			for i = 1, #ni.members do
-				local memberHP = ni.unit.hp(ni.members[i].unit)
+			for i = 1, #Cache.miembros do
+				local memberHP = ni.unit.hp(Cache.miembros[i].unit)
 				if memberHP < value and
-						(ni.unit.buff(ni.members[i].unit, spells.Regrowth.id, "player") or
-							ni.unit.buff(ni.members[i].unit, spells.Rejuvenation.id, "player")) and
-						ValidUsable(spells.Swiftmend.id, ni.members[i].unit) and
-						LosCast(spells.Swiftmend.name, ni.members[i].unit)
+						(ni.unit.buff(Cache.miembros[i].unit, spells.Regrowth.id, "player") or
+							ni.unit.buff(Cache.miembros[i].unit, spells.Rejuvenation.id, "player")) and
+						ValidUsable(spells.Swiftmend.id, Cache.miembros[i].unit) and
+						LosCast(spells.Swiftmend.name, Cache.miembros[i].unit)
 				then
 					return true
 				end
