@@ -594,8 +594,8 @@ if cata then
 			return false
 		end,
 		["HealingStreamTotem"] = function()
-			local healingStreamTotemEnabled = GetSetting("HealingStreamTotem", "enabled")
-			local multiTotemEnabled = GetSetting("MultiTotem", "enabled")
+			local _, healingStreamTotemEnabled = GetSetting("HealingStreamTotem")
+			local _, multiTotemEnabled = GetSetting("MultiTotem")
 
 			if not multiTotemEnabled and healingStreamTotemEnabled and
 					(not GetTotemInfo(Totem.Water) or TotemDistance(spells.HealingStreamTotem.name, p) > 20) and
@@ -714,7 +714,8 @@ if cata then
 			end
 		end,
 		["CalloftheTotems"] = function()
-			if GetSetting("MultiTotem", "enabled") then
+			local _, multiTotemEnabled = GetSetting("MultiTotem")
+			if multiTotemEnabled then
 				if (AnyTotemDistance(p) > 30) and ni.spell.available(spells.TotemicRecall.id) then
 					ni.spell.cast(spells.TotemicRecall.name)
 					return true
