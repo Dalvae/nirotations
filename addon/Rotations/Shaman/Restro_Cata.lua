@@ -579,8 +579,7 @@ if cata then
 			end
 		end,
 		["Riptide"] = function()
-			local value = GetSetting("RiptideHP")
-			local enabled = GetSetting("RiptideHP", "enabled")
+			local value, enabled = GetSetting("RiptideHP")
 			if not enabled then return false end
 
 			for i = 1, #Cache.miembros do
@@ -607,8 +606,7 @@ if cata then
 		end,
 		["HealingSurge"] = function()
 			if not Cache.moving then
-				local value = GetSetting("HealingSurgeHP")
-				local enabled = GetSetting("HealingSurgeHP", "enabled")
+				local value, enabled = GetSetting("HealingSurgeHP")
 				if not enabled then return false end
 
 				for i = 1, #Cache.miembros do
@@ -624,8 +622,7 @@ if cata then
 
 		["HealingWave"] = function()
 			if not Cache.moving then
-				local value = GetSetting("HealingWaveHP")
-				local enabled = GetSetting("HealingWaveHP", "enabled")
+				local value, enabled = GetSetting("HealingWaveHP")
 				if not enabled then return false end
 
 				for i = 1, #Cache.miembros do
