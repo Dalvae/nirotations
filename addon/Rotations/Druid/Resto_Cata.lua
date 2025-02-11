@@ -380,9 +380,10 @@ local abilities = {
 		end
 	end,
 	["Rejuvenation"] = function()
+		local value = GetSetting("RejuvenationHp")
 		for i = 1, #ni.members do
 			if
-				ni.members[i].hp <= values["RejuvenationHp"] and
+				ni.members[i].hp <= value and
 					not ni.unit.buff(ni.members[i].unit, spells.Rejuvenation.id, "player") and
 					ValidUsable(spells.Rejuvenation.id, ni.members[i].unit) and
 					LosCast(spells.Rejuvenation.name, ni.members[i].unit)
@@ -393,9 +394,10 @@ local abilities = {
 	end,
 	["Regrowth"] = function()
 		if not ni.player.ismoving() then
+			local value = GetSetting("RegrowthHp")
 			for i = 1, #ni.members do
 				if
-					ni.members[i].hp <= values["RegrowthHp"] and not ni.unit.buff(ni.members[i].unit, spells.Regrowth.id, "player") and
+					ni.members[i].hp <= value and not ni.unit.buff(ni.members[i].unit, spells.Regrowth.id, "player") and
 						ValidUsable(spells.Regrowth.id, ni.members[i].unit) and
 						LosCast(spells.Regrowth.name, ni.members[i].unit)
 				 then
@@ -406,9 +408,11 @@ local abilities = {
 	end,
 	["WildGrowth"] = function()
 		if ni.spell.available(spells.WildGrowth.id) then
-			local members = ni.members.inrangebelow("player", 40, values["WildGrowthHp"])
+			local hpValue = GetSetting("WildGrowthHp")
+			local countValue = GetSetting("WildGrowthAoeCount")
+			local members = ni.members.inrangebelow("player", 40, hpValue)
 			if
-				#members >= values["WildGrowthAoeCount"] and ValidUsable(spells.WildGrowth.id, members[1].unit) and
+				#members >= countValue and ValidUsable(spells.WildGrowth.id, members[1].unit) and
 					LosCast(spells.WildGrowth.name, members[1].unit)
 			 then
 				return true
@@ -416,10 +420,11 @@ local abilities = {
 		end
 	end,
 	["Nourish"] = function()
-		if enables["NourishHp"] and not ni.player.ismoving() then
+		local value, enabled = GetSetting("NourishHp")
+		if enabled and not ni.player.ismoving() then
 			for i = 1, #ni.members do
 				if
-					ni.members[i].hp < values["NourishHp"] and ValidUsable(spells.Nourish.id, ni.members[i].unit) and
+					ni.members[i].hp < value and ValidUsable(spells.Nourish.id, ni.members[i].unit) and
 						LosCast(spells.Nourish.name, ni.members[i].unit)
 				 then
 					return true
@@ -428,10 +433,11 @@ local abilities = {
 		end
 	end,
 	["Swiftmend"] = function()
-		if enables["SwiftmendHp"] then
+		local value, enabled = GetSetting("SwiftmendHp")
+		if enabled then
 			for i = 1, #ni.members do
 				if
-					ni.members[i].hp < values["SwiftmendHp"] and
+					ni.members[i].hp < value and
 						(ni.unit.buff(ni.members[i].unit, spells.Regrowth.id, "player") or
 							ni.unit.buff(ni.members[i].unit, spells.Rejuvenation.id, "player")) and
 						ValidUsable(spells.Swiftmend.id, ni.members[i].unit) and
@@ -443,15 +449,17 @@ local abilities = {
 		end
 	end,
 	["Innervate"] = function()
+		local value = GetSetting("Innervate")
 		if
-			ni.player.power("mana") <= values["Innervate"] and ValidUsable(spells.Innervate.id, "player") and
+			ni.player.power("mana") <= value and ValidUsable(spells.Innervate.id, "player") and
 				LosCast(spells.Innervate.name, "player")
 		 then
 			return true
 		end
 	end,
 	["RemoveCorruption"] = function()
-		if enables["Dispel"] then
+		local _, enabled = GetSetting("Dispel")
+		if enabled then
 			local naturesCure = GetTalentInfo(3, 17)
 			for t = 1, #ni.members do
 				local tar = ni.members[t].unit
