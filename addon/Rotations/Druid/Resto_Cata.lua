@@ -314,8 +314,9 @@ if cata then
 			if not ni.player.ismoving() then
 				local value = GetSetting("RegrowthHp")
 				for i = 1, #Cache.miembros do
+					local memberHP = ni.unit.hp(Cache.miembros[i].unit)
 					if
-							Cache.miembros[i].hp <= value and not ni.unit.buff(Cache.miembros[i].unit, spells.Regrowth.id, "player") and
+							memberHP <= value and not ni.unit.buff(Cache.miembros[i].unit, spells.Regrowth.id, "player") and
 							ValidUsable(spells.Regrowth.id, Cache.miembros[i].unit) and
 							LosCast(spells.Regrowth.name, Cache.miembros[i].unit)
 					then
