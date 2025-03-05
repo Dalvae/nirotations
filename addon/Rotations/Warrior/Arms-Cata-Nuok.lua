@@ -10,6 +10,7 @@ local queue = {
 	"Pummel",
 	"VictoryRush",
 	"Rend",
+	"SunderArmor", -- Added Sunder Armor to the rotation
 	"Execute",
 	"ThunderClap",
 	"MortalStrike",
@@ -82,7 +83,7 @@ local spells = {
 	DefensiveStance = {id = 71, name = GetSpellInfo(71), icon = select(3, GetSpellInfo(71))},
 	Parry = {id = 3127, name = GetSpellInfo(3127), icon = select(3, GetSpellInfo(3127))},
 	Taunt = {id = 355, name = GetSpellInfo(355), icon = select(3, GetSpellInfo(355))},
-	SunderArmor = {id = 7386, name = GetSpellInfo(7386), icon = select(3, GetSpellInfo(7386))},
+	SunderArmor = {id = 80056, name = GetSpellInfo(80056), icon = select(3, GetSpellInfo(80056))}, -- Corrected Spell ID
 	ShieldBlock = {id = 2565, name = GetSpellInfo(2565), icon = select(3, GetSpellInfo(2565))},
 	Disarm = {id = 676, name = GetSpellInfo(676), icon = select(3, GetSpellInfo(676))},
 	Revenge = {id = 6572, name = GetSpellInfo(6572), icon = select(3, GetSpellInfo(6572))},
@@ -287,6 +288,15 @@ local abilities = {
 		 then
 			return true
 		end
+	end,
+	["SunderArmor"] = function()
+		if ni.spell.available(spells.SunderArmor.id) and ni.spell.valid("target", spells.SunderArmor.id, true, true) then
+			if ni.unit.debuffstacks("target", spells.SunderArmor.id) < 3 then
+				ni.spell.cast(spells.SunderArmor.name)
+				return true
+			end
+		end
+		return false
 	end
 }
 	ni.bootstrap.profile("Arms-Cata-Nuok", queue, abilities, OnLoad, OnUnload)
