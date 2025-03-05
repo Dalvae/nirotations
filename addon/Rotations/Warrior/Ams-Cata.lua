@@ -24,80 +24,81 @@ local queue = {
 
 --Localize
 local IsSpellInRange,
-	IsCurrentSpell,
-	IsMounted,
-	UnitIsDeadOrGhost,
-	UnitExists,
-	UnitCanAttack,
-	IsUsableSpell =
-	IsSpellInRange,
-	IsCurrentSpell,
-	IsMounted,
-	UnitIsDeadOrGhost,
-	UnitExists,
-	UnitCanAttack,
-	IsUsableSpell
+IsCurrentSpell,
+IsMounted,
+UnitIsDeadOrGhost,
+UnitExists,
+UnitCanAttack,
+IsUsableSpell =
+		IsSpellInRange,
+		IsCurrentSpell,
+		IsMounted,
+		UnitIsDeadOrGhost,
+		UnitExists,
+		UnitCanAttack,
+		IsUsableSpell
 
 local spells = {
 	--ni.vars.build == 40300
 	--General
-	Attack = {id = 88163, name = GetSpellInfo(88163), icon = select(3, GetSpellInfo(88163))},
-	AutoAttack = {id = 6603, name = GetSpellInfo(6603), icon = select(3, GetSpellInfo(6603))},
+	Attack = { id = 88163, name = GetSpellInfo(88163), icon = select(3, GetSpellInfo(88163)) },
+	AutoAttack = { id = 6603, name = GetSpellInfo(6603), icon = select(3, GetSpellInfo(6603)) },
 	--Arms
-	AngerManagement = {id = 12296, name = GetSpellInfo(12296), icon = select(3, GetSpellInfo(12296))},
-	BattleStance = {id = 2457, name = GetSpellInfo(2457), icon = select(3, GetSpellInfo(2457))},
-	Charge = {id = 100, name = GetSpellInfo(100), icon = select(3, GetSpellInfo(100))},
-	MortalStrike = {id = 12294, name = GetSpellInfo(12294), icon = select(3, GetSpellInfo(12294))},
-	Rend = {id = 772, name = GetSpellInfo(772), icon = select(3, GetSpellInfo(772))},
-	Strike = {id = 88161, name = GetSpellInfo(88161), icon = select(3, GetSpellInfo(88161))},
-	ThunderClap = {id = 6343, name = GetSpellInfo(6343), icon = select(3, GetSpellInfo(6343))},
-	TwoHandedWeaponSpecialization = {id = 12712, name = GetSpellInfo(12712), icon = select(3, GetSpellInfo(12712))},
-	HeroicStrike = {id = 78, name = GetSpellInfo(78), icon = select(3, GetSpellInfo(78))},
-	HeroicThrow = {id = 57755, name = GetSpellInfo(57755), icon = select(3, GetSpellInfo(57755))},
-	Overpower = {id = 7384, name = GetSpellInfo(7384), icon = select(3, GetSpellInfo(7384))},
-	Hamstring = {id = 1715, name = GetSpellInfo(1715), icon = select(3, GetSpellInfo(1715))},
-	Retaliation = {id = 20230, name = GetSpellInfo(20230), icon = select(3, GetSpellInfo(20230))},
-	ShatteringThrow = {id = 64382, name = GetSpellInfo(64382), icon = select(3, GetSpellInfo(64382))},
-	ColossusSmash = {id = 86346, name = GetSpellInfo(86346), icon = select(3, GetSpellInfo(86346))},
+	AngerManagement = { id = 12296, name = GetSpellInfo(12296), icon = select(3, GetSpellInfo(12296)) },
+	BattleStance = { id = 2457, name = GetSpellInfo(2457), icon = select(3, GetSpellInfo(2457)) },
+	Charge = { id = 100, name = GetSpellInfo(100), icon = select(3, GetSpellInfo(100)) },
+	MortalStrike = { id = 12294, name = GetSpellInfo(12294), icon = select(3, GetSpellInfo(12294)) },
+	Rend = { id = 772, name = GetSpellInfo(772), icon = select(3, GetSpellInfo(772)) },
+	Strike = { id = 88161, name = GetSpellInfo(88161), icon = select(3, GetSpellInfo(88161)) },
+	ThunderClap = { id = 6343, name = GetSpellInfo(6343), icon = select(3, GetSpellInfo(6343)) },
+	TwoHandedWeaponSpecialization = { id = 12712, name = GetSpellInfo(12712), icon = select(3, GetSpellInfo(12712)) },
+	HeroicStrike = { id = 78, name = GetSpellInfo(78), icon = select(3, GetSpellInfo(78)) },
+	HeroicThrow = { id = 57755, name = GetSpellInfo(57755), icon = select(3, GetSpellInfo(57755)) },
+	Overpower = { id = 7384, name = GetSpellInfo(7384), icon = select(3, GetSpellInfo(7384)) },
+	Hamstring = { id = 1715, name = GetSpellInfo(1715), icon = select(3, GetSpellInfo(1715)) },
+	Retaliation = { id = 20230, name = GetSpellInfo(20230), icon = select(3, GetSpellInfo(20230)) },
+	ShatteringThrow = { id = 64382, name = GetSpellInfo(64382), icon = select(3, GetSpellInfo(64382)) },
+	ColossusSmash = { id = 86346, name = GetSpellInfo(86346), icon = select(3, GetSpellInfo(86346)) },
 	--Fury
-	VictoryRush = {id = 34428, name = GetSpellInfo(34428), icon = select(3, GetSpellInfo(34428))},
-	Execute = {id = 5308, name = GetSpellInfo(5308), icon = select(3, GetSpellInfo(5308))},
-	BattleShout = {id = 6673, name = GetSpellInfo(6673), icon = select(3, GetSpellInfo(6673))},
-	Cleave = {id = 845, name = GetSpellInfo(845), icon = select(3, GetSpellInfo(845))},
-	BerserkerStance = {id = 2458, name = GetSpellInfo(2458), icon = select(3, GetSpellInfo(2458))},
-	Whirlwind = {id = 1680, name = GetSpellInfo(1680), icon = select(3, GetSpellInfo(1680))},
-	Pummel = {id = 6552, name = GetSpellInfo(6552), icon = select(3, GetSpellInfo(6552))},
-	IntimidatingShout = {id = 5246, name = GetSpellInfo(5246), icon = select(3, GetSpellInfo(5246))},
-	Slam = {id = 1464, name = GetSpellInfo(1464), icon = select(3, GetSpellInfo(1464))},
-	ChallengingShout = {id = 1161, name = GetSpellInfo(1161), icon = select(3, GetSpellInfo(1161))},
-	Intercept = {id = 20252, name = GetSpellInfo(20252), icon = select(3, GetSpellInfo(20252))},
-	DemoralizingShout = {id = 1160, name = GetSpellInfo(1160), icon = select(3, GetSpellInfo(1160))},
-	BerserkerRage = {id = 18499, name = GetSpellInfo(18499), icon = select(3, GetSpellInfo(18499))},
-	InnerRage = {id = 1134, name = GetSpellInfo(1134), icon = select(3, GetSpellInfo(1134))},
-	Recklessness = {id = 1719, name = GetSpellInfo(1719), icon = select(3, GetSpellInfo(1719))},
-	CommandingShout = {id = 469, name = GetSpellInfo(469), icon = select(3, GetSpellInfo(469))},
-	EnragedRegeneration = {id = 55694, name = GetSpellInfo(55694), icon = select(3, GetSpellInfo(55694))},
-	RallyingCry = {id = 97462, name = GetSpellInfo(97462), icon = select(3, GetSpellInfo(97462))},
-	HeroicLeap = {id = 6544, name = GetSpellInfo(6544), icon = select(3, GetSpellInfo(6544))},
+	VictoryRush = { id = 34428, name = GetSpellInfo(34428), icon = select(3, GetSpellInfo(34428)) },
+	Execute = { id = 5308, name = GetSpellInfo(5308), icon = select(3, GetSpellInfo(5308)) },
+	BattleShout = { id = 6673, name = GetSpellInfo(6673), icon = select(3, GetSpellInfo(6673)) },
+	Cleave = { id = 845, name = GetSpellInfo(845), icon = select(3, GetSpellInfo(845)) },
+	BerserkerStance = { id = 2458, name = GetSpellInfo(2458), icon = select(3, GetSpellInfo(2458)) },
+	Whirlwind = { id = 1680, name = GetSpellInfo(1680), icon = select(3, GetSpellInfo(1680)) },
+	Pummel = { id = 6552, name = GetSpellInfo(6552), icon = select(3, GetSpellInfo(6552)) },
+	IntimidatingShout = { id = 5246, name = GetSpellInfo(5246), icon = select(3, GetSpellInfo(5246)) },
+	Slam = { id = 1464, name = GetSpellInfo(1464), icon = select(3, GetSpellInfo(1464)) },
+	ChallengingShout = { id = 1161, name = GetSpellInfo(1161), icon = select(3, GetSpellInfo(1161)) },
+	Intercept = { id = 20252, name = GetSpellInfo(20252), icon = select(3, GetSpellInfo(20252)) },
+	DemoralizingShout = { id = 1160, name = GetSpellInfo(1160), icon = select(3, GetSpellInfo(1160)) },
+	BerserkerRage = { id = 18499, name = GetSpellInfo(18499), icon = select(3, GetSpellInfo(18499)) },
+	InnerRage = { id = 1134, name = GetSpellInfo(1134), icon = select(3, GetSpellInfo(1134)) },
+	Recklessness = { id = 1719, name = GetSpellInfo(1719), icon = select(3, GetSpellInfo(1719)) },
+	CommandingShout = { id = 469, name = GetSpellInfo(469), icon = select(3, GetSpellInfo(469)) },
+	EnragedRegeneration = { id = 55694, name = GetSpellInfo(55694), icon = select(3, GetSpellInfo(55694)) },
+	RallyingCry = { id = 97462, name = GetSpellInfo(97462), icon = select(3, GetSpellInfo(97462)) },
+	HeroicLeap = { id = 6544, name = GetSpellInfo(6544), icon = select(3, GetSpellInfo(6544)) },
 	--Protection
-	DefensiveStance = {id = 71, name = GetSpellInfo(71), icon = select(3, GetSpellInfo(71))},
-	Parry = {id = 3127, name = GetSpellInfo(3127), icon = select(3, GetSpellInfo(3127))},
-	Taunt = {id = 355, name = GetSpellInfo(355), icon = select(3, GetSpellInfo(355))},
-	SunderArmor = {id = 7386, name = GetSpellInfo(7386), icon = select(3, GetSpellInfo(7386))},
-	ShieldBlock = {id = 2565, name = GetSpellInfo(2565), icon = select(3, GetSpellInfo(2565))},
-	Disarm = {id = 676, name = GetSpellInfo(676), icon = select(3, GetSpellInfo(676))},
-	Revenge = {id = 6572, name = GetSpellInfo(6572), icon = select(3, GetSpellInfo(6572))},
-	ShieldWall = {id = 871, name = GetSpellInfo(871), icon = select(3, GetSpellInfo(871))},
-	StanceMastery = {id = 12678, name = GetSpellInfo(12678), icon = select(3, GetSpellInfo(12678))},
-	SpellReflection = {id = 23920, name = GetSpellInfo(23920), icon = select(3, GetSpellInfo(23920))},
-	Intervene = {id = 3411, name = GetSpellInfo(3411), icon = select(3, GetSpellInfo(3411))}
+	DefensiveStance = { id = 71, name = GetSpellInfo(71), icon = select(3, GetSpellInfo(71)) },
+	Parry = { id = 3127, name = GetSpellInfo(3127), icon = select(3, GetSpellInfo(3127)) },
+	Taunt = { id = 355, name = GetSpellInfo(355), icon = select(3, GetSpellInfo(355)) },
+	SunderArmor = { id = 7386, name = GetSpellInfo(7386), icon = select(3, GetSpellInfo(7386)) },
+	ShieldBlock = { id = 2565, name = GetSpellInfo(2565), icon = select(3, GetSpellInfo(2565)) },
+	Disarm = { id = 676, name = GetSpellInfo(676), icon = select(3, GetSpellInfo(676)) },
+	Revenge = { id = 6572, name = GetSpellInfo(6572), icon = select(3, GetSpellInfo(6572)) },
+	ShieldWall = { id = 871, name = GetSpellInfo(871), icon = select(3, GetSpellInfo(871)) },
+	StanceMastery = { id = 12678, name = GetSpellInfo(12678), icon = select(3, GetSpellInfo(12678)) },
+	SpellReflection = { id = 23920, name = GetSpellInfo(23920), icon = select(3, GetSpellInfo(23920)) },
+	Intervene = { id = 3411, name = GetSpellInfo(3411), icon = select(3, GetSpellInfo(3411)) }
 }
 
 local p, t = "player", "target"
 
 local enables = {
-["AutoLoot"] = true,
-["EvenInCombat"] = true,}
+	["AutoLoot"] = true,
+	["EvenInCombat"] = true,
+}
 local values = {
 	["HeroicStrike"] = 70,
 	["Slam"] = 85
@@ -119,27 +120,27 @@ end
 local items = {
 	settingsfile = "Arms-Cata.xml",
 	callback = GUICallback,
-	{type = "separator"},
-	{type = "title", text = "Arms Cata Tapto"},
-	{type = "separator"},
+	{ type = "separator" },
+	{ type = "title",    text = "Arms Cata Tapto" },
+	{ type = "separator" },
 	{
 		type = "entry",
-		text = "\124T"..":26:26\124t Auto loot",
+		text = "\124T" .. ":26:26\124t Auto loot",
 		tooltip = "Auto loot out of combat",
 		enabled = true,
 		key = "getSetting_AutoLoot"
-		},
+	},
 
-		{
+	{
 		type = "entry",
-		text = "\124T"..":26:26\124t Auto loot even in Combat",
+		text = "\124T" .. ":26:26\124t Auto loot even in Combat",
 		tooltip = "Auto loot out in combat",
 		enabled = true,
 		key = "getSetting_EvenInCombat"
-		},
-		{
-			type = "separator",
-		},
+	},
+	{
+		type = "separator",
+	},
 	{
 		type = "entry",
 		text = "\124T" .. spells.HeroicStrike.icon .. ":26:26\124t Heroic Strike",
@@ -300,9 +301,9 @@ local BattleTrance = 85742
 local abilities = {
 	["Pause"] = function()
 		if
-			IsMounted() or UnitIsDeadOrGhost(p) or not UnitExists(t) or UnitIsDeadOrGhost(t) or
+				IsMounted() or UnitIsDeadOrGhost(p) or not UnitExists(t) or UnitIsDeadOrGhost(t) or
 				(UnitExists(t) and not UnitCanAttack(p, t))
-		 then
+		then
 			return true
 		end
 	end,
@@ -316,18 +317,18 @@ local abilities = {
 		local _, AutoLoot = GetSetting("getSetting_AutoLoot")
 		local _, EvenInCombat = GetSetting("getSetting_EvenInCombat")
 		if AutoLoot
-		  and not looting
-		  and (EvenInCombat or not UnitAffectingCombat("player"))
-		  and BagSpace()>0
-		  and not ni.player.ismounted()
-		  and not ni.player.iscasting()
-		  and not ni.player.ischanneling() then
-			for g,o in pairs(ni.objects) do        
+				and not looting
+				and (EvenInCombat or not UnitAffectingCombat("player"))
+				and BagSpace() > 0
+				and not ni.player.ismounted()
+				and not ni.player.iscasting()
+				and not ni.player.ischanneling() then
+			for g, o in pairs(ni.objects) do
 				if type(g) ~= "function" and type(g) == "string" and type(o) == "table" then
 					if not LootedUnits[g] and o:unit() and UnitIsDead(g) and ni.unit.islootable(g) then
 						if o:distance() < 3.9 then
 							return Loot(g)
-						end                
+						end
 					end
 				end
 			end
@@ -337,26 +338,26 @@ local abilities = {
 		local _, AutoLoot = GetSetting("getSetting_AutoLoot")
 		local _, EvenInCombat = GetSetting("getSetting_EvenInCombat")
 		if AutoLoot
-		  and not looting
-		  and (EvenInCombat or not UnitAffectingCombat("player"))
-		  and BagSpace()>2
-		  and not ni.player.ismounted()
-		  and not ni.player.iscasting()
-		  and not ni.player.ischanneling() then
+				and not looting
+				and (EvenInCombat or not UnitAffectingCombat("player"))
+				and BagSpace() > 2
+				and not ni.player.ismounted()
+				and not ni.player.iscasting()
+				and not ni.player.ischanneling() then
 			if not movingToCorpse then
 				local tempTbl = {}
-				for g,o in pairs(ni.objects) do        
+				for g, o in pairs(ni.objects) do
 					if type(g) ~= "function" and type(g) == "string" and type(o) == "table" then
 						if not LootedUnits[g] and o:unit() and UnitIsDead(g) and ni.unit.islootable(g) and o:los("player") then
-							table.insert(tempTbl,{ guid=g, distance=o:distance() })
+							table.insert(tempTbl, { guid = g, distance = o:distance() })
 						end
 					end
 				end
-				if next(tempTbl)==nil then return end
-				table.sort(tempTbl, function(a,b) return a.distance<b.distance end)
+				if next(tempTbl) == nil then return end
+				table.sort(tempTbl, function(a, b) return a.distance < b.distance end)
 				movingToCorpse = tempTbl[1].guid
 				ni.player.moveto(movingToCorpse)
-				return true                
+				return true
 			elseif ni.player.distance(movingToCorpse) < 3.9 then
 				local tmpCorpse = movingToCorpse
 				movingToCorpse = nil
@@ -388,22 +389,22 @@ local abilities = {
 	-- ["MortalStrike"] = function()
 	-- 	if ValidUsable(spells.MortalStrike.id, t)
 	-- 	and ni.player.buffstacks(84586)<3
-	-- 	and  and 
+	-- 	and  and
 	-- 	FacingLosCastBerserk(spells.MortalStrike.name, t) then
 	-- 		return true
 	-- 	end
 	-- end,
 	["MortalStrike"] = function()
-		if ValidUsable(spells.MortalStrike.id, t) and 
-		FacingLosCastBerserk(spells.MortalStrike.name, t) then
+		if ValidUsable(spells.MortalStrike.id, t) and
+				FacingLosCastBerserk(spells.MortalStrike.name, t) then
 			return true
 		end
 	end,
 	["VictoryRush"] = function()
 		if
-			ValidUsable(spells.VictoryRush.id, t) and IsUsableSpell(spells.VictoryRush.name) and
-			FacingLosCastBerserk(spells.VictoryRush.name, t)
-		 then
+				ValidUsable(spells.VictoryRush.id, t) and IsUsableSpell(spells.VictoryRush.name) and
+				FacingLosCastBerserk(spells.VictoryRush.name, t)
+		then
 			return true
 		end
 	end,
@@ -413,17 +414,17 @@ local abilities = {
 		end
 	end,
 	["ColossusSmash"] = function()
-		if ValidUsable(spells.ColossusSmash.id, t) 
-		and FacingLosCastBerserk(spells.ColossusSmash.name, t)
-		and cache.activeenemies < 4 then
+		if ValidUsable(spells.ColossusSmash.id, t)
+				and FacingLosCastBerserk(spells.ColossusSmash.name, t)
+				and cache.activeenemies < 4 then
 			return true
 		end
 	end,
 	["Overpower"] = function()
 		if
-			ValidUsable(spells.Overpower.id, t) and IsUsableSpell(spells.Overpower.name) and
+				ValidUsable(spells.Overpower.id, t) and IsUsableSpell(spells.Overpower.name) and
 				FacingLosCast(spells.Overpower.name, t)
-		 then
+		then
 			return true
 		end
 	end,
@@ -433,11 +434,11 @@ local abilities = {
 		end
 	end,
 	["HeroicStrike"] = function()
-		if ValidUsable(spells.HeroicStrike.id, t) 
-		and (ni.player.buff(BattleTrance)
-		or cache.rage >= values["HeroicStrike"]) and
+		if ValidUsable(spells.HeroicStrike.id, t)
+				and (ni.player.buff(BattleTrance)
+					or cache.rage >= values["HeroicStrike"]) and
 				FacingLosCastBerserk(spells.HeroicStrike.name, t)
-		 then
+		then
 			return true
 		end
 	end,
@@ -455,9 +456,9 @@ local abilities = {
 	end,
 	["Sweeping"] = function()
 		if ni.vars.combat.aoe
-		and ni.vars.combat.cd
-		and ni.spell.available(12328)
-		and cache.activeenemies >= 2 then
+				and ni.vars.combat.cd
+				and ni.spell.available(12328)
+				and cache.activeenemies >= 2 then
 			ni.spell.cast(12328)
 			print("Sweeping")
 			return true
@@ -465,9 +466,9 @@ local abilities = {
 	end,
 	["Cleave"] = function()
 		if ni.vars.combat.aoe
-		and ni.spell.available(spells.Cleave.id)
-		and cache.activeenemies >= 4
-		 and cache.rage >= 70 then
+				and ni.spell.available(spells.Cleave.id)
+				and cache.activeenemies >= 4
+				and cache.rage >= 70 then
 			ni.spell.cast(spells.BattleStance)
 			ni.spell.cast(spells.Cleave.id)
 			print("Cleave")
@@ -476,9 +477,9 @@ local abilities = {
 	end,
 	["Bladestorm"] = function()
 		if ni.vars.combat.aoe
-		and ni.vars.combat.cd
-		and ni.spell.available(46924)
-		and cache.activeenemies >= 3 then
+				and ni.vars.combat.cd
+				and ni.spell.available(46924)
+				and cache.activeenemies >= 3 then
 			ni.spell.cast(spells.BerserkerStance.id)
 			ni.player.runtext("/use 10")
 			ni.spell.cast(46924)
@@ -488,8 +489,8 @@ local abilities = {
 	end,
 	["Whirlwind"] = function()
 		if ni.vars.combat.aoe
-		and ni.spell.available(spells.Whirlwind.id)
-		and cache.activeenemies >= 4 then
+				and ni.spell.available(spells.Whirlwind.id)
+				and cache.activeenemies >= 4 then
 			ni.spell.cast(spells.BerserkerStance.id)
 			ni.spell.cast(spells.Whirlwind.id)
 			print("Whirlwind")
@@ -510,5 +511,5 @@ ni.bootstrap.profile("Arms-Cata", queue, abilities, OnLoad, OnUnload)
 ----------------------------------------------------------------
 -- Whirlwind
 -- Cleave when 3
--- sweeping 
--- 
+-- sweeping
+--

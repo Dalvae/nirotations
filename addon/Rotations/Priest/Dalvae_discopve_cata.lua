@@ -94,6 +94,7 @@ if cata then
 		"PrayerofShadowProtection",
 		"FearWard",
 		"DesperatePrayer",
+		"Pain Suppression",
 		"Archangel",
 		"Non Combat Healing",
 		"Combat specific Pause",
@@ -103,8 +104,8 @@ if cata then
 		"ShadowFiend",
 		"PrayerOfMending",
 		"Burst",
+		"FlashHeal",
 		"Tank Heal",
-		"Pain Suppression",
 		"Power Word: Shield (Agro)",
 		"Power Word: Shield (Target/Agro)",
 		"Power Word: Shield (Target)",
@@ -112,7 +113,6 @@ if cata then
 		"PenanceAttornament",
 		"AttonementHolySmite",
 		"PrayerofHealing",
-		"FlashHeal",
 		"Power Word: Shield (All)",
 		"Abolish Disease (Member)",
 		"Dispel Magic (Member)",
@@ -487,7 +487,8 @@ if cata then
 		["Tank Heal"] = function()
 			local tank, offTank = ni.tanks()
 			-- Main Tank Heal
-			if ni.unit.exists(tank) then
+			if ni.unit.exists(tank)
+					and ni.unit.hp(tank) < 90 then
 				local rnewtank, _, _, _, _, _, rnewtank_time = ni.unit.buff(tank, spells.Renew.id, "player")
 				local pwstank, _, _, _, _, _, pwstank_time = ni.unit.buff(tank, spells.PowerWordShield.id, "player")
 				local ws = ni.unit.debuff(tank, 6788)
@@ -511,7 +512,8 @@ if cata then
 			end
 			-- Off Tank heal
 			if offTank ~= nil
-					and ni.unit.exists(offTank) then
+					and ni.unit.exists(offTank)
+					and ni.unit.hp(offTank) < 90 then
 				local rnewotank, _, _, _, _, _, rnewotank_time = ni.unit.buff(offTank, spells.Renew.id, "player")
 				local pwotank, _, _, _, _, _, pwotank_time = ni.unit.buff(offTank, spells.PowerWordShield.id, "player")
 				local ws = ni.unit.debuff(offTank, 6788)
@@ -599,14 +601,20 @@ if cata then
 			end
 		end,
 		["FlashHeal"] = function()
-			local value, enabled = GetSetting("flash");
-			if enabled
-					and ni.spell.available(spells.FlashHeal.id)
-					and not ni.player.ismoving()
-					and ni.members[1].hp() < value
-					and ni.spell.valid(ni.members[1].unit, spells.FlashHeal.id, false, true, true) then
-				ni.spell.cast(spells.FlashHeal.id, ni.members[1].unit)
-				return true
+			local value, enabled = GetSetting("flash")
+			if enabled and ni.spell.available(spells.FlashHeal.id)
+					and not ni.player.ismoving() then
+				for i = 1, #ni.members do
+					if ni.members[i].hp() < value
+							and ni.spell.valid(ni.members[i].unit, spells.FlashHeal.id, false, true, true) then
+						ni.spell.cast(spells.FlashHeal.id, ni.members[i].unit)
+						return true
+					end
+				end
+				if ni.player.hp() < value then
+					ni.spell.cast(spells.FlashHeal.id, "player")
+					return true
+				end
 			end
 		end,
 		["PenanceLow"] = function()
@@ -744,13 +752,15 @@ if cata then
 		end,
 
 		["Pain Suppression"] = function()
-			local value, enabled = GetSetting("painsupp");
-			if enabled
-					and ni.spell.available(spells.PainSuppression.id)
-					and ni.members[1].hp() < value
-					and ni.spell.valid(ni.members[1].unit, spells.PainSuppression.id, false, true, true) then
-				ni.spell.cast(spells.PainSuppression.id, ni.members[1].unit)
-				return true
+			local value, enabled = GetSetting("painsupp")
+			if enabled and ni.spell.available(spells.PainSuppression.id) then
+				for i = 1, #ni.members do
+					if ni.members[i].hp() < value
+							and ni.spell.valid(ni.members[i].unit, spells.PainSuppression.id, false, true, true) then
+						ni.spell.cast(spells.PainSuppression.id, ni.members[i].unit)
+						return true
+					end
+				end
 			end
 		end,
 		["Archangel"] = function()

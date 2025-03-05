@@ -949,7 +949,7 @@ if wotlk then
 				if Cache.cat then
 					if GetComboPoints("player", "target") >= 2
 							and Cache.savagertimer <= 9
-							and math.abs(Cache.savagertimer - Cache.riptimer) < 4 -- this is savage
+							and math.abs(Cache.savagertimer - Cache.riptimer) < 4
 							and Cache.riptimer >= 5 then
 						ni.spell.cast(spells.SavageRoar.id, "target")
 						return true;
@@ -990,7 +990,7 @@ if wotlk then
 					then
 						ni.spell.cast(spells.Rip.id, t)
 					else
-						if Cache.riptimer < 3
+						if Cache.riptimer < 0.3
 						then
 							ni.spell.cast(spells.Rip.id, t)
 						end
