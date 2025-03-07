@@ -7,7 +7,7 @@ local t = "target";
 local level = UnitLevel(p);
 local function ActiveEnemies()
 	table.wipe(enemies);
-	enemies = ni.unit.enemiesinrange(t, 7);
+	enemies = ni.unit.enemiesinrange(t, 8);
 	for k, v in ipairs(enemies) do
 		if ni.player.threat(v.guid) == -1 then
 			table.remove(enemies, k);
@@ -341,7 +341,10 @@ if build == 30300 and level == 80 and data then
 	end
 
 
-
+	local function HasImprovedBerserkerRage()
+		local _, _, _, _, rank = GetTalentInfo(2, 16)
+		return rank > 0
+	end
 	local function castBattle(spellID, target)
 		local currentStance = GetShapeshiftForm()
 		if currentStance ~= 1 then           -- Not in battle stance
@@ -553,7 +556,7 @@ if build == 30300 and level == 80 and data then
 				if ni.player.power() > 25
 						and not IsCurrentSpell(ni.vars.combat.aoe and spells.cleave.id or spells.heroicStrike.id)
 				then
-					ni.spell.cast(ni.vars.combat.aoe and spells.cleave.id or spells.heroicStrike.id, t)
+					ni.spell.cast(ni.vars.combat.aoe and ActiveEnemies() > 1 and spells.cleave.id or spells.heroicStrike.id, t)
 				else
 					ni.spell.cast(spells.berserkStance.id)
 					return true
@@ -796,7 +799,7 @@ if build == 30300 and level == 80 and data then
 		end,
 		["Berserkrage"] = function()
 			local _, enabled = GetSetting("detect")
-			if ni.unit.isboss(t)
+			if HasImprovedBerserkerRage()
 					and cache.berserkstance
 					and ni.player.power() < 30
 					and ni.spell.available(spells.berserkRage.id)
@@ -879,7 +882,7 @@ if build == 30300 and level == 80 and data then
 		-----------------------------------
 		["Bloodthirst"] = function()
 			if cache.berserkstance
-					and ni.spell.cd(spells.bloodthirst.id) < 0.4
+					and ni.spell.cd(spells.bloodthirst.id) < 0.3
 					and ni.player.power() >= 20
 					and ni.spell.valid(t, spells.bloodthirst.id, true, true)
 			then
@@ -888,7 +891,7 @@ if build == 30300 and level == 80 and data then
 		end,
 		["Whirlwind"] = function()
 			if cache.berserkstance
-					and ni.spell.cd(spells.whirlwind.id) < 0.4
+					and ni.spell.cd(spells.whirlwind.id) < 0.3
 					and ni.player.power() >= 25
 					and ni.player.distance(t) <= 8
 					and not IsLeftShiftKeyDown() then
@@ -929,9 +932,9 @@ if build == 30300 and level == 80 and data then
 		["Heroic Strike + Cleave (Filler)"] = function()
 			local value = GetSetting("heroiccleave");
 			if ni.spell.valid(t, spells.slam.id) then
-				if ni.vars.combat.aoe and ni.player.power() > (value + 8) then
+				if ni.vars.combat.aoe and ActiveEnemies() > 1 and ni.player.power() > (value + 8) then
 					ni.spell.cast(spells.cleave.id)
-				elseif not ni.vars.combat.aoe and ni.player.power() > value then
+				elseif ni.player.power() > value then
 					ni.spell.cast(spells.heroicStrike.id)
 				end
 			end

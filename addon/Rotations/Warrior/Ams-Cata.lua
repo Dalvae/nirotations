@@ -5,10 +5,13 @@ local queue = {
 	"BattleShout",
 	"Cache",
 	"Pummel",
+
 	-- "VictoryRush",
 	"Rend",
 	"Execute",
 	"ThunderClap",
+	"DeadlyCalmBloodFury",   -- Blood Fury con Deadly Calm
+	"InnerRageBerserkerRage", -- Inner Rage con Berserker Rage
 	"Bladestorm",
 	"Sweeping",
 	"Whirlwind",
@@ -90,7 +93,9 @@ local spells = {
 	ShieldWall = { id = 871, name = GetSpellInfo(871), icon = select(3, GetSpellInfo(871)) },
 	StanceMastery = { id = 12678, name = GetSpellInfo(12678), icon = select(3, GetSpellInfo(12678)) },
 	SpellReflection = { id = 23920, name = GetSpellInfo(23920), icon = select(3, GetSpellInfo(23920)) },
-	Intervene = { id = 3411, name = GetSpellInfo(3411), icon = select(3, GetSpellInfo(3411)) }
+	Intervene = { id = 3411, name = GetSpellInfo(3411), icon = select(3, GetSpellInfo(3411)) },
+	BloodFury = { id = 20572, name = GetSpellInfo(20572), icon = select(3, GetSpellInfo(20572)) },
+	DeadlyCalm = { id = 85730, name = GetSpellInfo(85730), icon = select(3, GetSpellInfo(85730)) },
 }
 
 local p, t = "player", "target"
@@ -497,6 +502,21 @@ local abilities = {
 			return true
 		end
 	end,
+	["DeadlyCalmBloodFury"] = function()
+		if ni.spell.available(spells.DeadlyCalm.id) and ni.spell.available(spells.BloodFury.id) then
+			ni.spell.castspells(spells.DeadlyCalm.name .. "|" .. spells.BloodFury.name)
+			return true
+		end
+		return false
+	end,
+
+	["InnerRageBerserkerRage"] = function()
+		if ni.spell.available(spells.InnerRage.id) and ni.spell.available(spells.BerserkerRage.id) then
+			ni.spell.castspells(spells.InnerRage.name .. "|" .. spells.BerserkerRage.name)
+			return true
+		end
+		return false
+	end
 	-- ["Pummel"] = function()
 	-- 	if
 	-- 		ValidUsable(spells.Pummel.name, "target") and ni.spell.shouldinterrupt("target") and
