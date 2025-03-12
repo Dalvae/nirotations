@@ -1,8 +1,8 @@
 local UnitClass, rawset, setmetatable, GetSpellCooldown, GetTime, random, UnitCastingInfo, tonumber, tinsert, IsSpellKnown, IsPlayerSpell, GetSpellInfo, select, GetNetStats, format, ni_getspellidfromactionbar, rawget, random, sqrt, cos, sin, pairs, tContains, tremove, tostring, UnitIsDeadOrGhost, UnitCanAttack, IsSpellInRange, GetShapeshiftForm, UnitChannelInfo =
-UnitClass, rawset, setmetatable, GetSpellCooldown, GetTime, random, UnitCastingInfo, tonumber, tinsert, IsSpellKnown,
-		IsPlayerSpell, GetSpellInfo, select, GetNetStats, format, ni.getspellidfromactionbar, rawget, random, sqrt, cos, sin,
-		pairs, tContains, tremove, tostring, UnitIsDeadOrGhost, UnitCanAttack, IsSpellInRange, GetShapeshiftForm,
-		UnitChannelInfo
+	UnitClass, rawset, setmetatable, GetSpellCooldown, GetTime, random, UnitCastingInfo, tonumber, tinsert, IsSpellKnown,
+	IsPlayerSpell, GetSpellInfo, select, GetNetStats, format, ni.getspellidfromactionbar, rawget, random, sqrt, cos, sin,
+	pairs, tContains, tremove, tostring, UnitIsDeadOrGhost, UnitCanAttack, IsSpellInRange, GetShapeshiftForm,
+	UnitChannelInfo
 
 local _, class = UnitClass("player");
 local casts = {};
@@ -44,6 +44,10 @@ end;
 spell.gcd = function()
 	local _, d = GetSpellCooldown(61304)
 	return d ~= 0
+end;
+spell.getGCDDuration = function()
+	local _, duration = GetSpellCooldown(61304)
+	return duration
 end;
 spell.isqueued = function()
 	if ni.vars.combat.spellqueueenabled then
@@ -147,7 +151,7 @@ spell.available = function(spellid, stutter)
 	local result = false
 
 	if spellid ~= nil and spellid ~= 0
-			and (IsSpellKnown(spellid) or (ni.vars.build >= 50400 and IsPlayerSpell(spellid))) then
+		and (IsSpellKnown(spellid) or (ni.vars.build >= 50400 and IsPlayerSpell(spellid))) then
 		local name, _, _, cost, _, powertype = GetSpellInfo(spellid)
 
 		if ni.stopcastingtracker.shouldstop(spellid) then
@@ -155,9 +159,9 @@ spell.available = function(spellid, stutter)
 		end
 
 		if name
-				and ((powertype == -2 and ni.player.hpraw() >= cost)
-					or (powertype >= 0 and ni.player.powerraw(powertype) >= cost))
-				and spell.cd(name) == 0 then
+			and ((powertype == -2 and ni.player.hpraw() >= cost)
+				or (powertype >= 0 and ni.player.powerraw(powertype) >= cost))
+			and spell.cd(name) == 0 then
 			result = true
 		end
 	end
@@ -310,10 +314,10 @@ spell.valid = function(t, spellid, facing, los, friendly)
 	local name, _, _, cost, _, powertype = GetSpellInfo(spellid)
 
 	if ni.unit.exists(t) and ((not friendly and (not UnitIsDeadOrGhost(t) and UnitCanAttack("player", t) == 1)) or friendly and not UnitIsDeadOrGhost(t))
-			and IsSpellInRange(name, t) == 1 and IsSpellKnown(spellid)
-			and ni.player.powerraw(powertype) >= cost
-			and ((facing and ni.player.isfacing(t)) or not facing)
-			and ((los and ni.player.los(t)) or not los) then
+		and IsSpellInRange(name, t) == 1 and IsSpellKnown(spellid)
+		and ni.player.powerraw(powertype) >= cost
+		and ((facing and ni.player.isfacing(t)) or not facing)
+		and ((los and ni.player.los(t)) or not los) then
 		return true
 	end
 	return false
@@ -412,7 +416,7 @@ spell.isinstant = function(s)
 end;
 spell.icon = function(spell, width, height)
 	return "\124T" ..
-	(select(3, GetSpellInfo(spell)) or select(3, GetSpellInfo(24720))) .. ":" ..
-	(height or 25) .. ":" .. (width or 25) .. "\124t"
+		(select(3, GetSpellInfo(spell)) or select(3, GetSpellInfo(24720))) .. ":" ..
+		(height or 25) .. ":" .. (width or 25) .. "\124t"
 end;
 return spell;
