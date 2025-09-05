@@ -31,7 +31,7 @@ if build == 30300 and level == 80 and data then
 		{
 			type = "entry",
 			text = "|cFFFF0000\124T" ..
-					GetItemIcon(42641) .. ":26:26\124t Use Bomb|r",
+				GetItemIcon(42641) .. ":26:26\124t Use Bomb|r",
 			tooltip = "It will use Bombs on CD!",
 			enabled = "bombs",
 			key = "bombs"
@@ -60,13 +60,13 @@ if build == 30300 and level == 80 and data then
 	local function GetSetting(name)
 		for k, v in ipairs(items) do
 			if v.type == "entry"
-					and v.key ~= nil
-					and v.key == name then
+				and v.key ~= nil
+				and v.key == name then
 				return v.value, v.enabled
 			end
 			if v.type == "dropdown"
-					and v.key ~= nil
-					and v.key == name then
+				and v.key ~= nil
+				and v.key == name then
 				for k2, v2 in pairs(v.menu) do
 					if v2.selected then
 						return v2.value
@@ -74,8 +74,8 @@ if build == 30300 and level == 80 and data then
 				end
 			end
 			if v.type == "input"
-					and v.key ~= nil
-					and v.key == name then
+				and v.key ~= nil
+				and v.key == name then
 				return v.value
 			end
 		end
@@ -125,85 +125,85 @@ if build == 30300 and level == 80 and data then
 	local lastDesyncAttempt = 0
 	local desyncCooldown    = 5
 
-	-- Variables adicionales necesarias
-	local SWING_WINDOW_MIN  = 0.1 -- 100ms
-	local SWING_WINDOW_MAX  = 0.3 -- 300ms
-	local DESYNC_DELAY      = 1.5 -- 1.5 segundos para sincronizar con el próximo swing
+	-- -- Variables adicionales necesarias
+	-- local SWING_WINDOW_MIN  = 0.1 -- 100ms
+	-- local SWING_WINDOW_MAX  = 0.3 -- 300ms
+	-- local DESYNC_DELAY      = 1.5 -- 1.5 segundos para sincronizar con el próximo swing
 
 
-	-- Modificar AttemptDesync
-	local function AttemptDesync()
-		local currentTime = GetTime()
-		if currentTime - lastDesyncAttempt < desyncCooldown then
-			return
-		end
-		-- Ejecutar macro completo en un solo comando
-		ni.player.runtext("/cleartarget")
-		ni.C_Timer.After(0.1, function()
-			ni.player.runtext("/targetlasttarget")
-			ni.C_Timer.After(0.1, function()
-				ni.player.runtext("/startattack")
-			end)
-		end)
+	-- -- Modificar AttemptDesync
+	-- local function AttemptDesync()
+	-- 	local currentTime = GetTime()
+	-- 	if currentTime - lastDesyncAttempt < desyncCooldown then
+	-- 		return
+	-- 	end
+	-- 	-- Ejecutar macro completo en un solo comando
+	-- 	ni.player.runtext("/cleartarget")
+	-- 	ni.C_Timer.After(0.1, function()
+	-- 		ni.player.runtext("/targetlasttarget")
+	-- 		ni.C_Timer.After(0.1, function()
+	-- 			ni.player.runtext("/startattack")
+	-- 		end)
+	-- 	end)
 
-		print("Desync executed at " .. currentTime)
+	-- 	print("Desync executed at " .. currentTime)
 
-		lastDesyncAttempt = currentTime
-	end
-	local function CombatEventCatcher(event, ...)
-		if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-			local _, eventType, sourceGUID, _, _, _, _, _, spellId = ...
-			local playerGUID = UnitGUID(p)
-			local currentTime = GetTime()
+	-- 	lastDesyncAttempt = currentTime
+	-- end
+	-- local function CombatEventCatcher(event, ...)
+	-- 	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
+	-- 		local _, eventType, sourceGUID, _, _, _, _, _, spellId = ...
+	-- 		local playerGUID = UnitGUID(p)
+	-- 		local currentTime = GetTime()
 
-			if sourceGUID == playerGUID then
-				-- Detectar cualquier swing físico o habilidad de siguiente ataque
-				if eventType == "SWING_DAMAGE"
-						or (eventType == "SPELL_DAMAGE"
-							and (spellId == spells.heroicStrike.id
-								or spellId == spells.cleave.id))
-				then
-					-- Calcular tiempo entre swings
-					local swingGap = currentTime - lastSwingTime
+	-- 		if sourceGUID == playerGUID then
+	-- 			-- Detectar cualquier swing físico o habilidad de siguiente ataque
+	-- 			if eventType == "SWING_DAMAGE"
+	-- 				or (eventType == "SPELL_DAMAGE"
+	-- 					and (spellId == spells.heroicStrike.id
+	-- 						or spellId == spells.cleave.id))
+	-- 			then
+	-- 				-- Calcular tiempo entre swings
+	-- 				local swingGap = currentTime - lastSwingTime
 
-					-- Ventana óptima para desincronización (0.1-0.3s entre swings)
-					if swingGap < 0.3 then
-						local _, enabled = GetSetting("autodesync")
-						if enabled then
-							if ni.vars.debug then
-								print("Swing sync detected at " .. currentTime)
-							end
-							swingSync = true
-							-- Programar intento de desync después de un breve retraso
-							ni.C_Timer.After(2, function()
-								if swingSync then
-									AttemptDesync()
-									swingSync = false
-								end
-							end)
-						end
-					end
+	-- 				-- Ventana óptima para desincronización (0.1-0.3s entre swings)
+	-- 				if swingGap < 0.3 then
+	-- 					local _, enabled = GetSetting("autodesync")
+	-- 					if enabled then
+	-- 						if ni.vars.debug then
+	-- 							print("Swing sync detected at " .. currentTime)
+	-- 						end
+	-- 						swingSync = true
+	-- 						-- Programar intento de desync después de un breve retraso
+	-- 						ni.C_Timer.After(2, function()
+	-- 							if swingSync then
+	-- 								AttemptDesync()
+	-- 								swingSync = false
+	-- 							end
+	-- 						end)
+	-- 					end
+	-- 				end
 
-					-- Actualizar último swing detectado
-					lastSwingTime = currentTime
+	-- 				-- Actualizar último swing detectado
+	-- 				lastSwingTime = currentTime
 
-					if ni.vars.debug then
-						print("Player swing occurred at " .. currentTime)
-					end
-				end
-			end
-		elseif event == "PLAYER_REGEN_DISABLED" then
-			inCombat = true
-			lastSwingTime = GetTime()
-		elseif event == "PLAYER_REGEN_ENABLED" then
-			inCombat = false
-		end
-	end
+	-- 				if ni.vars.debug then
+	-- 					print("Player swing occurred at " .. currentTime)
+	-- 				end
+	-- 			end
+	-- 		end
+	-- 	elseif event == "PLAYER_REGEN_DISABLED" then
+	-- 		inCombat = true
+	-- 		lastSwingTime = GetTime()
+	-- 	elseif event == "PLAYER_REGEN_ENABLED" then
+	-- 		inCombat = false
+	-- 	end
+	-- end
 
 
 
-	-- DBM PrePull
-	local pullInTimer = nil
+	-- -- DBM PrePull
+	-- local pullInTimer = nil
 
 	local function DBMEventHandler(event, ...)
 		local id, msg, duration = ...
@@ -299,13 +299,13 @@ if build == 30300 and level == 80 and data then
 			ni.player.runtext("/target [@mouseover]")
 		end
 		if UnitExists(t)
-				and ni.unit.distance(p, t) > 7
-				and ni.unit.distance(t, t) < 26
+			and ni.unit.distance(p, t) > 7
+			and ni.unit.distance(t, t) < 26
 		then
 			if UnitCanAttack(p, t)
 			then
 				if ni.spell.cd(spells.intercept.id) == 0
-						and ni.player.power() >= 10
+					and ni.player.power() >= 10
 				then
 					ni.player.lookat(t)
 					if currentStance == 3 then
@@ -319,7 +319,7 @@ if build == 30300 and level == 80 and data then
 				end
 			else
 				if ni.spell.cd(spells.intervene.id) == 0
-						and ni.player.power() > 10
+					and ni.player.power() > 10
 				then
 					ni.player.lookat(t)
 					if currentStance == 2 then
@@ -347,7 +347,7 @@ if build == 30300 and level == 80 and data then
 	end
 	local function castBattle(spellID, target)
 		local currentStance = GetShapeshiftForm()
-		if currentStance ~= 1 then           -- Not in battle stance
+		if currentStance ~= 1 then       -- Not in battle stance
 			ni.spell.cast(spells.battleStance.id) --Battlestance
 			ni.spell.cast(spellID, target)
 		end
@@ -386,8 +386,8 @@ if build == 30300 and level == 80 and data then
 		"Pummel (Interrupt)",
 		"AutoAtack",
 		"Heroic Strike + Cleave (Filler)",
-		"Whirlwind",
 		"Bloodthirst",
+		"Whirlwind",
 		"Sunder Armor Refresh",
 		"Bloodrage",
 		"Berserkrage",
@@ -416,15 +416,15 @@ if build == 30300 and level == 80 and data then
 		-----------------------------------
 		["Universal pause"] = function()
 			if IsMounted()
-					or UnitInVehicle(p)
-					or UnitIsDeadOrGhost(t)
-					or UnitIsDeadOrGhost(p)
-					or UnitChannelInfo(p) ~= nil
-					or UnitCastingInfo(p) ~= nil
-					or ni.vars.combat.casting == true
-					or ni.player.islooting()
-					or data.PlayerBuffs(p)
-					or (not UnitAffectingCombat(p) and ni.vars.followEnabled) then
+				or UnitInVehicle(p)
+				or UnitIsDeadOrGhost(t)
+				or UnitIsDeadOrGhost(p)
+				or UnitChannelInfo(p) ~= nil
+				or UnitCastingInfo(p) ~= nil
+				or ni.vars.combat.casting == true
+				or ni.player.islooting()
+				or data.PlayerBuffs(p)
+				or (not UnitAffectingCombat(p) and ni.vars.followEnabled) then
 				return true
 			end
 
@@ -449,22 +449,22 @@ if build == 30300 and level == 80 and data then
 				if remaining <= 61 and remaining > 60 and bombsEnabled then
 					print("61 seconds left, using Armor potion")
 					ni.player.useitem(40093)
-				elseif remaining <= 28 and remaining > 27.5 then
-					print("20 seconds left, swapping trinkets")
-					-- Obtener el nombre del trinket en el slot 13
-					local topTrinketLink = GetInventoryItemLink(p, 13)
-					local topTrinketName = topTrinketLink and select(1, GetItemInfo(topTrinketLink)) or nil
+					-- elseif remaining <= 28 and remaining > 27.5 then
+					-- 	print("20 seconds left, swapping trinkets")
+					-- 	-- Obtener el nombre del trinket en el slot 13
+					-- 	local topTrinketLink = GetInventoryItemLink(p, 13)
+					-- 	local topTrinketName = topTrinketLink and select(1, GetItemInfo(topTrinketLink)) or nil
 
-					-- Obtener el nombre del trinket en el slot 14
-					local bottomTrinketLink = GetInventoryItemLink(p, 14)
-					local bottomTrinketName = bottomTrinketLink and select(1, GetItemInfo(bottomTrinketLink)) or nil
+					-- 	-- Obtener el nombre del trinket en el slot 14
+					-- 	local bottomTrinketLink = GetInventoryItemLink(p, 14)
+					-- 	local bottomTrinketName = bottomTrinketLink and select(1, GetItemInfo(bottomTrinketLink)) or nil
 
-					if topTrinketName and bottomTrinketName then
-						-- Equipar el trinket de abajo en el slot de arriba
-						ni.player.runtext("/equipslot 13 " .. bottomTrinketName)
-						-- Equipar el trinket de arriba en el slot de abajo
-						ni.player.runtext("/equipslot 14 " .. topTrinketName)
-					end
+					-- 	if topTrinketName and bottomTrinketName then
+					-- 		-- Equipar el trinket de abajo en el slot de arriba
+					-- 		ni.player.runtext("/equipslot 13 " .. bottomTrinketName)
+					-- 		-- Equipar el trinket de arriba en el slot de abajo
+					-- 		ni.player.runtext("/equipslot 14 " .. topTrinketName)
+					-- 	end
 				elseif remaining <= 5 and remaining > 1 then
 					print("5 second left, Recklesness")
 					ni.spell.cast(spells.recklessness.id)
@@ -501,18 +501,18 @@ if build == 30300 and level == 80 and data then
 
 		["AutoTarget"] = function()
 			if UnitAffectingCombat(p)
-					and ((ni.unit.exists(t)
-							and UnitIsDeadOrGhost(t)
-							and not UnitCanAttack(p, t))
-						or not ni.unit.exists(t)) then
+				and ((ni.unit.exists(t)
+						and UnitIsDeadOrGhost(t)
+						and not UnitCanAttack(p, t))
+					or not ni.unit.exists(t)) then
 				ni.player.runtext("/targetenemy")
 			end
 		end,
 		-----------------------------------
 		["AutoAtack"] = function()
 			if UnitAffectingCombat(p)
-					and data.warrior.InRange()
-					and not IsCurrentSpell(6603)
+				and data.warrior.InRange()
+				and not IsCurrentSpell(6603)
 			then
 				ni.player.runtext("/startattack")
 			end
@@ -522,21 +522,21 @@ if build == 30300 and level == 80 and data then
 			if enabled
 			then
 				if ni.player.hasitem(42641) --Sapper
-						and ni.player.itemcd(42641) == 0
+					and ni.player.itemcd(42641) == 0
 				then
 					if ni.unit.inmelee(p, t)
-							and ni.unit.isboss(t)
-							and UnitCanAttack(p, t)
-							and ni.player.hp() > 40
-							and ni.player.power() < 40
+						and ni.unit.isboss(t)
+						and UnitCanAttack(p, t)
+						and ni.player.hp() > 40
+						and ni.player.power() < 40
 					then
 						ni.player.useitem(42641)
 					end
 				else
 					if ni.player.hasitem(41119) --Sarobomb
-							and UnitCanAttack(p, t)
-							and ni.unit.isboss(t)
-							and ni.player.itemcd(41119) == 0
+						and UnitCanAttack(p, t)
+						and ni.unit.isboss(t)
+						and ni.player.itemcd(41119) == 0
 					then
 						ni.player.useitem(41119)
 						ni.player.clickat(t)
@@ -550,13 +550,14 @@ if build == 30300 and level == 80 and data then
 			local _, enabled = GetSetting("stence")
 			if not enabled or not cache.battlestance then return false end
 			if ni.unit.isboss(t)
-					and (ni.unit.debuff(t, spells.rend.id, p)
-						or ni.unit.hp(t) < 20)
+				and (ni.unit.debuff(t, spells.rend.id, p)
+					or ni.unit.hp(t) < 20)
 			then
 				if ni.player.power() > 25
-						and not IsCurrentSpell(ni.vars.combat.aoe and spells.cleave.id or spells.heroicStrike.id)
+					and not IsCurrentSpell(ni.vars.combat.aoe and spells.cleave.id or spells.heroicStrike.id)
 				then
-					ni.spell.cast(ni.vars.combat.aoe and ActiveEnemies() > 1 and spells.cleave.id or spells.heroicStrike.id, t)
+					ni.spell.cast(
+						ni.vars.combat.aoe and spells.cleave.id or spells.heroicStrike.id, t)
 				else
 					ni.spell.cast(spells.berserkStance.id)
 					return true
@@ -571,7 +572,7 @@ if build == 30300 and level == 80 and data then
 				return false
 			end
 			if enabled
-					and ni.spell.available(spells.battleShout.id) then
+				and ni.spell.available(spells.battleShout.id) then
 				ni.spell.cast(spells.battleShout.id)
 				return true
 			end
@@ -583,7 +584,7 @@ if build == 30300 and level == 80 and data then
 				return false
 			end
 			if enabled
-					and ni.spell.available(spells.commandingShout.id) then
+				and ni.spell.available(spells.commandingShout.id) then
 				ni.spell.cast(spells.commandingShout.id)
 				return true
 			end
@@ -593,14 +594,14 @@ if build == 30300 and level == 80 and data then
 			local value, enabled = GetSetting("regen");
 			local enrage = { 18499, 12292, 29131, 14204, 57522 }
 			if enabled
-					and ni.spell.available(spells.enragedRegeneration.id)
-					and ni.player.hp() < value then
+				and ni.spell.available(spells.enragedRegeneration.id)
+				and ni.player.hp() < value then
 				for i = 1, #enrage do
 					if ni.player.buff(enrage[i]) then
 						ni.spell.cast(spells.enragedRegeneration.id)
 					else
 						if not ni.player.buff(enrage[i])
-								and ni.spell.cd(spells.bloodRage.id) == 0 then
+							and ni.spell.cd(spells.bloodRage.id) == 0 then
 							ni.spell.castspells(spells.bloodRage.id .. "|" .. spells.enragedRegeneration.id)
 							return true
 						end
@@ -612,9 +613,9 @@ if build == 30300 and level == 80 and data then
 		["Berserker Rage"] = function()
 			local _, enabled = GetSetting("bersrage")
 			if enabled
-					and data.warrior.Berserk()
-					and ni.spell.available(spells.berserkRage.id)
-					and not ni.player.buff(spells.berserkRage.id) then
+				and data.warrior.Berserk()
+				and ni.spell.available(spells.berserkRage.id)
+				and not ni.player.buff(spells.berserkRage.id) then
 				ni.spell.cast(spells.berserkRage.id)
 				return true
 			end
@@ -622,11 +623,11 @@ if build == 30300 and level == 80 and data then
 		-----------------------------------
 		["Combat specific Pause"] = function()
 			if data.meleeStop(t)
-					or data.PlayerDebuffs(p)
-					or UnitCanAttack(p, t) == nil
-					or (UnitAffectingCombat(t) == nil
-						and ni.unit.isdummy(t) == nil
-						and UnitIsPlayer(t) == nil) then
+				or data.PlayerDebuffs(p)
+				or UnitCanAttack(p, t) == nil
+				or (UnitAffectingCombat(t) == nil
+					and ni.unit.isdummy(t) == nil
+					and UnitIsPlayer(t) == nil) then
 				return true
 			end
 		end,
@@ -636,9 +637,9 @@ if build == 30300 and level == 80 and data then
 			local hstones = { 36892, 36893, 36894 }
 			for i = 1, #hstones do
 				if enabled
-						and ni.player.hp() < value
-						and ni.player.hasitem(hstones[i])
-						and ni.player.itemcd(hstones[i]) == 0 then
+					and ni.player.hp() < value
+					and ni.player.hasitem(hstones[i])
+					and ni.player.itemcd(hstones[i]) == 0 then
 					ni.player.useitem(hstones[i])
 					return true
 				end
@@ -650,9 +651,9 @@ if build == 30300 and level == 80 and data then
 			local hpot = { 33447, 43569, 40087, 41166, 40067 }
 			for i = 1, #hpot do
 				if enabled
-						and ni.player.hp() < value
-						and ni.player.hasitem(hpot[i])
-						and ni.player.itemcd(hpot[i]) == 0 then
+					and ni.player.hp() < value
+					and ni.player.hasitem(hpot[i])
+					and ni.player.itemcd(hpot[i]) == 0 then
 					ni.player.useitem(hpot[i])
 					return true
 				end
@@ -666,17 +667,17 @@ if build == 30300 and level == 80 and data then
 			local _, enabled = GetSetting("detect")
 			--- Undead
 			if data.forsaken(p)
-					and IsSpellKnown(7744)
-					and ni.spell.available(7744) then
+				and IsSpellKnown(7744)
+				and ni.spell.available(7744) then
 				ni.spell.cast(7744)
 				return true
 			end
 			--- Horde race
 			for i = 1, #hracial do
 				if data.CDorBoss(t, 5, 35, 5, enabled)
-						and IsSpellKnown(hracial[i])
-						and ni.spell.available(hracial[i])
-						and data.warrior.InRange() then
+					and IsSpellKnown(hracial[i])
+					and ni.spell.available(hracial[i])
+					and data.warrior.InRange() then
 					ni.spell.cast(hracial[i])
 					return true
 				end
@@ -684,10 +685,10 @@ if build == 30300 and level == 80 and data then
 			--- Blood Elf
 			for i = 1, #bloodelf do
 				if data.CDorBoss(t, 5, 35, 5, enabled)
-						and ni.player.power() < 60
-						and IsSpellKnown(bloodelf[i])
-						and ni.spell.available(bloodelf[i])
-						and data.warrior.InRange() then
+					and ni.player.power() < 60
+					and IsSpellKnown(bloodelf[i])
+					and ni.spell.available(bloodelf[i])
+					and data.warrior.InRange() then
 					ni.spell.cast(bloodelf[i])
 					return true
 				end
@@ -695,9 +696,9 @@ if build == 30300 and level == 80 and data then
 			--- Ally race
 			for i = 1, #alracial do
 				if data.warrior.InRange()
-						and ni.player.hp() < 20
-						and IsSpellKnown(alracial[i])
-						and ni.spell.available(alracial[i]) then
+					and ni.player.hp() < 20
+					and IsSpellKnown(alracial[i])
+					and ni.spell.available(alracial[i]) then
 					ni.spell.cast(alracial[i])
 					return true
 				end
@@ -706,8 +707,8 @@ if build == 30300 and level == 80 and data then
 		-----------------------------------
 		["Use enginer gloves"] = function()
 			if ni.player.slotcastable(10)
-					and ni.spell.cd(spells.deathWish.id) > 60
-					and ni.player.slotcd(10) == 0
+				and ni.spell.cd(spells.deathWish.id) > 60
+				and ni.player.slotcd(10) == 0
 			then
 				ni.player.useinventoryitem(10)
 				return true
@@ -717,15 +718,15 @@ if build == 30300 and level == 80 and data then
 		["Trinkets"] = function()
 			local _, enabled = GetSetting("detect")
 			if data.CDorBoss(t, 5, 35, 5, enabled)
-					and ni.player.slotcastable(13)
-					and ni.player.slotcd(13) == 0
-					and data.warrior.InRange() then
+				and ni.player.slotcastable(13)
+				and ni.player.slotcd(13) == 0
+				and data.warrior.InRange() then
 				ni.player.useinventoryitem(13)
 			else
 				if data.CDorBoss(t, 5, 35, 5, enabled)
-						and ni.player.slotcastable(14)
-						and ni.player.slotcd(14) == 0
-						and data.warrior.InRange() then
+					and ni.player.slotcastable(14)
+					and ni.player.slotcd(14) == 0
+					and data.warrior.InRange() then
 					ni.player.useinventoryitem(14)
 					return true
 				end
@@ -735,11 +736,11 @@ if build == 30300 and level == 80 and data then
 		["Pummel (Interrupt)"] = function()
 			local _, enabled = GetSetting("autointerrupt")
 			if enabled
-					and ni.spell.shouldinterrupt(t)
-					and ni.spell.available(spells.pummel.id)
-					and ni.spell.valid(t, spells.pummel.id, true, true)
-					and (ni.unit.castingpercent(t) > 80
-						or ni.unit.ischanneling(t))
+				and ni.spell.shouldinterrupt(t)
+				and ni.spell.available(spells.pummel.id)
+				and ni.spell.valid(t, spells.pummel.id, true, true)
+				and (ni.unit.castingpercent(t) > 80
+					or ni.unit.ischanneling(t))
 			then
 				ni.spell.castinterrupt(t)
 				data.LastInterrupt = GetTime()
@@ -750,9 +751,9 @@ if build == 30300 and level == 80 and data then
 		-----------------------------------	
 		["Heroic Throw"] = function()
 			if not data.warrior.InRange()
-					and UnitAffectingCombat(p)
-					and ni.spell.cd(spells.heroicthrow.id) == 0
-					and ni.spell.valid(t, spells.heroicthrow.id, true, true)
+				and UnitAffectingCombat(p)
+				and ni.spell.cd(spells.heroicthrow.id) == 0
+				and ni.spell.valid(t, spells.heroicthrow.id, true, true)
 			then
 				ni.spell.cast(spells.heroicthrow.id, t)
 			end
@@ -763,10 +764,10 @@ if build == 30300 and level == 80 and data then
 			local sunder, _, _, count = ni.unit.debuff(t, spells.sunderArmor.id)
 			local _, enabled = GetSetting("detect")
 			if data.CDorBoss(t, 5, 35, 5, enabled)
-					and sunder
-					and count > 4
-					and ni.spell.available(spells.deathWish.id)
-					and data.warrior.InRange() then
+				and sunder
+				and count > 4
+				and ni.spell.available(spells.deathWish.id)
+				and data.warrior.InRange() then
 				ni.spell.cast(spells.deathWish.id)
 				return true
 			end
@@ -777,10 +778,10 @@ if build == 30300 and level == 80 and data then
 
 			local _, enabled = GetSetting("detect")
 			if data.CDorBoss(t, 5, 35, 5, enabled)
-					and sunder
-					and count > 4
-					and ni.spell.available(spells.recklessness.id)
-					and data.warrior.InRange() then
+				and sunder
+				and count > 4
+				and ni.spell.available(spells.recklessness.id)
+				and data.warrior.InRange() then
 				ni.spell.cast(spells.recklessness.id)
 				return true
 			end
@@ -789,10 +790,10 @@ if build == 30300 and level == 80 and data then
 		["Bloodrage"] = function()
 			local _, enabled = GetSetting("detect")
 			if ni.unit.isboss(t)
-					and cache.berserkstance
-					and ni.player.power() < 30
-					and ni.spell.available(spells.bloodRage.id)
-					and data.warrior.InRange() then
+				and cache.berserkstance
+				and ni.player.power() < 30
+				and ni.spell.available(spells.bloodRage.id)
+				and data.warrior.InRange() then
 				ni.spell.cast(spells.bloodRage.id)
 				return true
 			end
@@ -800,10 +801,10 @@ if build == 30300 and level == 80 and data then
 		["Berserkrage"] = function()
 			local _, enabled = GetSetting("detect")
 			if HasImprovedBerserkerRage()
-					and cache.berserkstance
-					and ni.player.power() < 30
-					and ni.spell.available(spells.berserkRage.id)
-					and data.warrior.InRange() then
+				and cache.berserkstance
+				and ni.player.power() < 30
+				and ni.spell.available(spells.berserkRage.id)
+				and data.warrior.InRange() then
 				ni.spell.cast(spells.berserkRage.id)
 				return true
 			end
@@ -811,10 +812,10 @@ if build == 30300 and level == 80 and data then
 		-----------------------------------
 		["Victory Rush"] = function()
 			if IsUsableSpell(GetSpellInfo(spells.victoryRush.id))
-					and (not IsUsableSpell(GetSpellInfo(spells.bloodthirst.id))
-						or ni.spell.cd(spells.whirlwind.id) > 1
-						and ni.spell.cd(spells.bloodthirst.id) > 1)
-					and ni.spell.valid(t, spells.victoryRush.id, true, true) then
+				and (not IsUsableSpell(GetSpellInfo(spells.bloodthirst.id))
+					or ni.spell.cd(spells.whirlwind.id) > 1
+					and ni.spell.cd(spells.bloodthirst.id) > 1)
+				and ni.spell.valid(t, spells.victoryRush.id, true, true) then
 				ni.spell.cast(spells.victoryRush.id, t)
 				return true
 			end
@@ -822,9 +823,9 @@ if build == 30300 and level == 80 and data then
 		-----------------------------------
 		["Execute"] = function()
 			if ni.player.power() > 30
-					and (ni.unit.hp(t) <= 20
-						or IsUsableSpell(GetSpellInfo(spells.execute.id)))
-					and ni.spell.valid(t, spells.execute.id, true, true) then
+				and (ni.unit.hp(t) <= 20
+					or IsUsableSpell(GetSpellInfo(spells.execute.id)))
+				and ni.spell.valid(t, spells.execute.id, true, true) then
 				ni.spell.cast(spells.execute.id, t)
 
 				return true
@@ -838,7 +839,7 @@ if build == 30300 and level == 80 and data then
 			if enabled and (not sunder or count < 5) then return false end
 
 			if ni.unit.debuff("target", spells.rend.id, "player") or
-					not ni.spell.valid("target", spells.rend.id, true, true) then
+				not ni.spell.valid("target", spells.rend.id, true, true) then
 				return false
 			end
 
@@ -858,10 +859,10 @@ if build == 30300 and level == 80 and data then
 			local isBoss = ni.unit.isboss(t)
 
 			if cache.berserkstance
-					and ni.player.buff(46916)
-					and ni.spell.cd(spells.whirlwind.id) > 1
-					and ni.spell.cd(spells.bloodthirst.id) > 1
-					and ni.spell.valid(t, spells.slam.id, true, true)
+				and ni.player.buff(46916)
+				and ni.spell.cd(spells.whirlwind.id) > 1
+				and ni.spell.cd(spells.bloodthirst.id) > 1
+				and ni.spell.valid(t, spells.slam.id, true, true)
 			then
 				local shouldCast = true
 
@@ -882,19 +883,19 @@ if build == 30300 and level == 80 and data then
 		-----------------------------------
 		["Bloodthirst"] = function()
 			if cache.berserkstance
-					and ni.spell.cd(spells.bloodthirst.id) < 0.3
-					and ni.player.power() >= 20
-					and ni.spell.valid(t, spells.bloodthirst.id, true, true)
+				and ni.spell.cd(spells.bloodthirst.id) < 0.3
+				and ni.player.power() >= 20
+				and ni.spell.valid(t, spells.bloodthirst.id, true, true)
 			then
 				ni.spell.cast(spells.bloodthirst.id, t)
 			end
 		end,
 		["Whirlwind"] = function()
 			if cache.berserkstance
-					and ni.spell.cd(spells.whirlwind.id) < 0.3
-					and ni.player.power() >= 25
-					and ni.player.distance(t) <= 8
-					and not IsLeftShiftKeyDown() then
+				and ni.spell.cd(spells.whirlwind.id) < 0.3
+				and ni.player.power() >= 25
+				and ni.player.distance(t) <= 8
+				and not IsLeftShiftKeyDown() then
 				ni.spell.cast(spells.whirlwind.id)
 				return true
 			end
@@ -905,12 +906,12 @@ if build == 30300 and level == 80 and data then
 			local sunder, _, _, count = ni.unit.debuff(t, spells.sunderArmor.id)
 			local _, enabled = GetSetting("sunder")
 			if enabled
-					and ni.unit.isboss(t)
-					and not ni.unit.debuff(t, 8647)
-					and (not sunder
-						or count < 5 or ni.unit.debuffremaining(t, spells.sunderArmor.id) < 4)
-					and ni.spell.available(spells.sunderArmor.id)
-					and ni.spell.valid(t, spells.sunderArmor.id, true, true) then
+				and ni.unit.isboss(t)
+				and not ni.unit.debuff(t, 8647)
+				and (not sunder
+					or count < 5 or ni.unit.debuffremaining(t, spells.sunderArmor.id) < 4)
+				and ni.spell.available(spells.sunderArmor.id)
+				and ni.spell.valid(t, spells.sunderArmor.id, true, true) then
 				ni.spell.cast(spells.sunderArmor.id, t)
 				return true
 			end
@@ -919,11 +920,11 @@ if build == 30300 and level == 80 and data then
 			local sunder, _, _, count = ni.unit.debuff(t, spells.sunderArmor.id)
 			local _, enabled = GetSetting("sunder")
 			if enabled
-					and ni.unit.isboss(t)
-					and not ni.unit.debuff(t, 8647)
-					and ni.unit.debuffremaining(t, spells.sunderArmor.id) < 5
-					and ni.spell.available(spells.sunderArmor.id)
-					and ni.spell.valid(t, spells.sunderArmor.id, true, true) then
+				and ni.unit.isboss(t)
+				and not ni.unit.debuff(t, 8647)
+				and ni.unit.debuffremaining(t, spells.sunderArmor.id) < 5
+				and ni.spell.available(spells.sunderArmor.id)
+				and ni.spell.valid(t, spells.sunderArmor.id, true, true) then
 				ni.spell.cast(spells.sunderArmor.id, t)
 				return true
 			end
@@ -932,7 +933,7 @@ if build == 30300 and level == 80 and data then
 		["Heroic Strike + Cleave (Filler)"] = function()
 			local value = GetSetting("heroiccleave");
 			if ni.spell.valid(t, spells.slam.id) then
-				if ni.vars.combat.aoe and ActiveEnemies() > 1 and ni.player.power() > (value + 8) then
+				if ni.vars.combat.aoe and ni.player.power() > (value + 8) then
 					ni.spell.cast(spells.cleave.id)
 				elseif ni.player.power() > value then
 					ni.spell.cast(spells.heroicStrike.id)
