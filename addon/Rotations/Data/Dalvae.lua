@@ -68,12 +68,11 @@ dalvae.spells = {
 -- Form IDs from GetShapeshiftForm()
 dalvae.forms = {
 	humanoid = 0,
-	cat = 1,
-	travel = 3,
-	aquatic = 4,
-	bear = 5,
-	moonkin = 29,
-	tree = 30,
+	bear = 1, -- ID correcto es 1
+	aquatic = 2,
+	cat = 3, -- ID correcto es 3
+	travel = 4,
+	moonkin = 5,
 }
 
 -- Centralized definitions for crowd control and immunity effects
@@ -245,6 +244,22 @@ function dalvae.spellReady(spell)
 	end
 
 	return true
+end
+function dalvae.isUnitUntouchable(unit)
+	-- Comprueba si la unidad tiene buffs de inmunidad como Escudo Divino o Bloque de Hielo
+	if ni.unit.buff(unit, 642) or ni.unit.buff(unit, 45438) then
+		return true
+	end
+	return false
+end
+function dalvae.findBestItem(itemList)
+	for _, itemId in ipairs(itemList) do
+		-- Comprueba si tienes el objeto en tus bolsas
+		if GetItemCount(itemId) > 0 then
+			return itemId -- Devuelve el ID del primer objeto que encuentre en la lista
+		end
+	end
+	return nil -- Si no encuentra ninguno, devuelve nil
 end
 
 function dalvae.spellUsable(spell)

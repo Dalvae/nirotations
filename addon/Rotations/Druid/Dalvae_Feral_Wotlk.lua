@@ -12,13 +12,14 @@ if wotlk then
 		huntForClearcasting = true,
 		useOffensivePrePot = true,
 		useCombatPotions = true,
-		autoInterrupt = true, -- Player preference
+		autoInterrupt = true,
+
 		-- Tanking
-		isMainTank = true, -- This nee to be called autotaunt
+		isMainTank = true,
 
 		-- Smart Ability Toggles
 		berserkOnFear = false,
-		autoDispelEnabled = true, -- Enables auto-removal of poisons AND curses
+		autoDispelEnabled = true,
 
 		-- Health Thresholds
 		survivalInstinct = 30,
@@ -39,7 +40,6 @@ if wotlk then
 	local SPELLS = dalvae.spells.druid
 	local ITEMS = dalvae.items
 	local FORMS = dalvae.forms
-	local BLOODLUST_BUFFS = { [2825] = true, [32182] = true } -- Bloodlust, Heroism
 
 	local PlayerSpec = "DPS"
 	local DBM_Timers = {}
@@ -74,50 +74,17 @@ if wotlk then
 	}
 
 	-- ===================================================================================
-	-- DYNAMIC QUEUES
-	-- ===================================================================================
-	local DpsSingleTargetQueue = {
-		"UseClearcastingFinisher",
-		"UseClearcastingShred",
-		"UseEngineeringGloves",
-		"AlignCooldowns",
-		"MaintainSavageRoar",
-		"MaintainRip",
-		"MaintainRake",
-		"MaintainMangle",
-		"FerociousBiteExecute",
-		"UseTigersFury",
-		"BuildComboPoints",
-		"Powershift",
-	}
-	local DpsAoEQueue = {
-		"UseClearcastingShred",
-		"UseEngineeringGloves",
-		"AlignCooldowns",
-		"SelectHighestHealthTarget",
-		"MaintainSavageRoar",
-		"SpamSwipe",
-		"BuildComboPointsForAoE",
-		"UseTigersFury",
-		"Powershift",
-	}
-	local TankSingleTargetQueue =
-		{ "ManageThreat", "MaintainDemoralizingRoar", "MaintainMangleBear", "MaintainLacerate", "MaulRageDump" }
-	local TankAoEQueue = { "ManageThreat", "MaintainDemoralizingRoar", "SpamSwipeBear", "SpamMaul" }
-
-	-- ===================================================================================
-	-- ABILITIES LOGIC
+	-- ABILITIES LOGIC (El "qué hacer")
 	-- ===================================================================================
 	local abilities = {}
 
-	-- CORE & CACHE
 	abilities["ScanConsumables"] = function()
 		Cache.availableConsumables.healthstone = dalvae.findBestItem(ITEMS.healthstones)
 		Cache.availableConsumables.potion = dalvae.findBestItem(ITEMS.health_potions)
 		return false
 	end
+
 	abilities["CacheUpdate"] = function()
-		Cache.playerHP = ni.player.hp()
 		Cache.inCombat = UnitAffectingCombat("player")
 		Cache.isMounted = IsMounted()
 		Cache.isDead = UnitIsDeadOrGhost("player")
@@ -126,14 +93,17 @@ if wotlk then
 		Cache.enemies_in_range = ni.unit.enemiesinrange("player", 30)
 		Cache.targetExists = ni.unit.exists("target")
 		Cache.hasBloodlust = ni.player.buff(2825) or ni.player.buff(32182)
-		if not Cache.targetExists then
-			return false
+
+		if not Cache.targetExists or not UnitCanAttack("player", "target") then
+			return true
 		end
+
 		Cache.targetHP = ni.unit.hp("target")
 		Cache.targetTTD = ni.unit.ttd("target")
 		Cache.targetIsBehind = ni.unit.isbehind("player", "target")
 		Cache.targetInMelee = ni.unit.inmelee("player", "target")
 		Cache.targetIsUntouchable = dalvae.isUnitUntouchable("target")
+
 		if PlayerSpec == "DPS" and Cache.currentForm == FORMS.cat then
 			Cache.energy = ni.player.powerraw("energy")
 			Cache.comboPoints = GetComboPoints("player", "target")
@@ -141,7 +111,8 @@ if wotlk then
 			Cache.ripRemains = ni.unit.debuffremaining("target", SPELLS.Rip.id, "player")
 			Cache.rakeRemains = ni.unit.debuffremaining("target", SPELLS.Rake.id, "player")
 			Cache.mangleRemains = ni.unit.debuffremaining("target", SPELLS.MangleCat.id)
-			Cache.threatStatus = ni.unit.threat("target") or { percent = 0 }
+			local threatValue = ni.unit.threat("target") or 0
+			Cache.threatStatus = { percent = threatValue }
 			Cache.hasClearcasting = ni.player.buff(SPELLS.Clearcasting.id)
 		elseif PlayerSpec == "TANK" and Cache.currentForm == FORMS.bear then
 			Cache.rage = ni.player.powerraw("rage")
@@ -151,11 +122,58 @@ if wotlk then
 		end
 		return true
 	end
+
 	abilities["StopConditions"] = function()
-		return Cache.isMounted or Cache.isDead or Cache.isChanneling or ni.player.buff("Drink")
+		if Cache.isMounted or Cache.isDead or Cache.isChanneling or ni.player.buff("Drink") then
+			return true
+		end
+		return false
 	end
 
-	-- HIGH-PRIORITY UTILITY & DEFENSE
+	abilities["AutoCatFormOOC"] = function()
+		if
+			Config.autoFormEnabled
+			and not Cache.inCombat
+			and Cache.currentForm == FORMS.humanoid
+			and PlayerSpec == "DPS"
+		then
+			return dalvae.cast(SPELLS.CatForm)
+		end
+		return false
+	end
+
+	abilities["AutoProwl"] = function()
+		if
+			Config.autoProwlEnabled
+			and not Cache.inCombat
+			and Cache.currentForm == FORMS.cat
+			and not ni.player.buff(SPELLS.Prowl.id)
+		then
+			return dalvae.cast(SPELLS.Prowl)
+		end
+		return false
+	end
+
+	abilities["PreCombatHandler"] = function()
+		for _, t in pairs(DBM_Timers) do
+			if t.message == "Pull in" then
+				local r = t.expirationTime - GetTime()
+				if r > 0 then
+					if r < 8 and r > 2 and Config.huntForClearcasting and not Cache.hasClearcasting then
+						dalvae.cast(SPELLS.MarkoftheWild, "player")
+					end
+					if r < 1.6 and r > 1.4 and Config.useOffensivePrePot then
+						local pot = dalvae.findBestItem(ITEMS.speed_potions)
+						if pot then
+							return ni.player.useitem(pot)
+						end
+					end
+				end
+			end
+		end
+		return false
+	end
+
 	abilities["TargetSwapHandler"] = function()
 		if Cache.targetIsUntouchable then
 			for _, enemy in ipairs(Cache.enemies_in_range) do
@@ -172,6 +190,7 @@ if wotlk then
 		end
 		return false
 	end
+
 	abilities["Defensives"] = function()
 		if Cache.playerHP < Config.survivalInstinct and dalvae.cast(SPELLS.SurvivalInstincts) then
 			return true
@@ -210,18 +229,21 @@ if wotlk then
 		end
 		return false
 	end
+
 	abilities["AutoDispel"] = function()
 		if Config.autoDispelEnabled and Cache.playerHP < Config.autoDispelHealth then
 			local p, c = false, false
-			local i = 1
-			while UnitDebuff("player", i) do
+			for i = 1, 40 do
 				local _, _, _, _, t = UnitDebuff("player", i)
+				if not t then
+					break
+				end
 				if t == "Poison" then
 					p = true
-				elseif t == "Curse" then
+				end
+				if t == "Curse" then
 					c = true
 				end
-				i = i + 1
 			end
 			if p and dalvae.cast(SPELLS.AbolishPoison, "player") then
 				return true
@@ -231,6 +253,7 @@ if wotlk then
 		end
 		return false
 	end
+
 	abilities["BerserkOnFear"] = function()
 		if
 			Config.berserkOnFear
@@ -242,7 +265,6 @@ if wotlk then
 		return false
 	end
 
-	-- COMBAT PREPARATION
 	abilities["AutoForm"] = function()
 		if not Config.autoFormEnabled or (Cache.currentForm == FORMS.cat or Cache.currentForm == FORMS.bear) then
 			return false
@@ -254,6 +276,7 @@ if wotlk then
 		end
 		return false
 	end
+
 	abilities["AutoAttack"] = function()
 		if
 			Cache.targetExists
@@ -267,7 +290,17 @@ if wotlk then
 		return false
 	end
 
-	-- COMBAT ROTATION
+	abilities["Opener"] = function()
+		if Cache.inCombat and ni.player.buff(SPELLS.Prowl.id) then
+			if Cache.targetIsBehind and dalvae.spellUsable(SPELLS.Pounce) then
+				return dalvae.cast(SPELLS.Pounce, "target")
+			elseif dalvae.spellUsable(SPELLS.MangleCat) then
+				return dalvae.cast(SPELLS.MangleCat, "target")
+			end
+		end
+		return false
+	end
+
 	abilities["UseClearcastingFinisher"] = function()
 		if
 			Cache.hasClearcasting
@@ -279,12 +312,14 @@ if wotlk then
 		end
 		return false
 	end
+
 	abilities["UseClearcastingShred"] = function()
 		if Cache.hasClearcasting and Cache.targetIsBehind and dalvae.spellUsable(SPELLS.Shred) then
 			return dalvae.cast(SPELLS.Shred, "target")
 		end
 		return false
 	end
+
 	abilities["AlignCooldowns"] = function()
 		if not ni.vars.combat.cd or not dalvae.spellUsable(SPELLS.Berserk) then
 			return false
@@ -292,12 +327,8 @@ if wotlk then
 		if Cache.tigersFuryRemains > 0 then
 			dalvae.cast(SPELLS.Berserk)
 			if Config.useCombatPotions then
-				local pot
-				if Cache.hasBloodlust then
-					pot = dalvae.findBestItem(ITEMS.strength_potions)
-				else
-					pot = dalvae.findBestItem(ITEMS.speed_potions)
-				end
+				local pot = Cache.hasBloodlust and dalvae.findBestItem(ITEMS.strength_potions)
+					or dalvae.findBestItem(ITEMS.speed_potions)
 				if pot then
 					ni.player.useitem(pot)
 				end
@@ -307,6 +338,7 @@ if wotlk then
 		end
 		return false
 	end
+
 	abilities["UseEngineeringGloves"] = function()
 		if not ni.vars.combat.cd or ni.spell.cd(SPELLS.Berserk.id) < 60 then
 			return false
@@ -314,34 +346,40 @@ if wotlk then
 		ni.player.runtext("/use 10")
 		return true
 	end
+
 	abilities["MaintainSavageRoar"] = function()
-		if
-			Cache.savageRoarRemains < 3
-			or (Cache.savageRoarRemains < 5 and math.abs(Cache.savageRoarRemains - Cache.ripRemains) < 3)
-				and Cache.comboPoints >= 1
-		then
-			return dalvae.cast(SPELLS.SavageRoar)
+		if Cache.comboPoints > 0 then
+			if Cache.savageRoarRemains == 0 then
+				return dalvae.cast(SPELLS.SavageRoar)
+			end
+			if Cache.savageRoarRemains < 5 and math.abs(Cache.savageRoarRemains - Cache.ripRemains) < 3 then
+				return dalvae.cast(SPELLS.SavageRoar)
+			end
 		end
 		return false
 	end
+
 	abilities["MaintainRip"] = function()
 		if Cache.comboPoints >= 5 and Cache.ripRemains < 2 and Cache.savageRoarRemains > 2 and Cache.targetTTD > 10 then
 			return dalvae.cast(SPELLS.Rip, "target")
 		end
 		return false
 	end
+
 	abilities["MaintainRake"] = function()
-		if Cache.rakeRemains < 0.5 and Cache.comboPoints < 5 then
+		if Cache.rakeRemains < 2 and Cache.comboPoints < 5 then
 			return dalvae.cast(SPELLS.Rake, "target")
 		end
 		return false
 	end
+
 	abilities["MaintainMangle"] = function()
 		if ni.unit.debuffremaining("target", SPELLS.MangleCat.id) < 2 then
 			return dalvae.cast(SPELLS.MangleCat, "target")
 		end
 		return false
 	end
+
 	abilities["FerociousBiteExecute"] = function()
 		if
 			Cache.comboPoints >= 5
@@ -353,25 +391,30 @@ if wotlk then
 		end
 		return false
 	end
+
 	abilities["BuildComboPoints"] = function()
-		if Cache.comboPoints < 5 then
-			if Cache.targetIsBehind and dalvae.spellUsable(SPELLS.Shred) then
-				return dalvae.cast(SPELLS.Shred, "target")
-			elseif dalvae.spellUsable(SPELLS.MangleCat) then
-				return dalvae.cast(SPELLS.MangleCat, "target")
-			end
+		if Cache.currentForm ~= FORMS.cat or Cache.comboPoints >= 5 then
+			return false
+		end
+		if Cache.targetIsBehind and dalvae.spellUsable(SPELLS.Shred) then
+			return dalvae.cast(SPELLS.Shred, "target")
+		end
+		if dalvae.spellUsable(SPELLS.MangleCat) then
+			return dalvae.cast(SPELLS.MangleCat, "target")
 		end
 		return false
 	end
+
 	abilities["UseTigersFury"] = function()
 		if Cache.energy < 40 and dalvae.spellUsable(SPELLS.TigersFury) then
 			return dalvae.cast(SPELLS.TigersFury)
 		end
 		return false
 	end
+
 	abilities["Powershift"] = function()
 		if
-			Config.huntForClearcasting -- Improve this, we need to check  for  mana,
+			Config.huntForClearcasting
 			and Cache.energy < 35
 			and not Cache.hasClearcasting
 			and ni.spell.cd(SPELLS.TigersFury.id) > 2
@@ -381,6 +424,7 @@ if wotlk then
 		end
 		return false
 	end
+
 	abilities["SelectHighestHealthTarget"] = function()
 		if Cache.comboPoints > 0 then
 			return false
@@ -390,8 +434,7 @@ if wotlk then
 			if u.distance < 9 then
 				local uh = ni.unit.hp(u.guid)
 				if uh > h then
-					h = uh
-					t = u.guid
+					h, t = uh, u.guid
 				end
 			end
 		end
@@ -401,6 +444,7 @@ if wotlk then
 		end
 		return false
 	end
+
 	abilities["SpamSwipe"] = function()
 		if
 			#Cache.enemies_in_range >= Config.aoeEnemyCount
@@ -411,6 +455,7 @@ if wotlk then
 		end
 		return false
 	end
+
 	abilities["BuildComboPointsForAoE"] = function()
 		if Cache.savageRoarRemains < 5 and Cache.comboPoints < 3 then
 			if not ni.unit.debuff("target", SPELLS.MangleCat.id) then
@@ -423,6 +468,7 @@ if wotlk then
 		end
 		return false
 	end
+
 	abilities["ManageThreat"] = function()
 		if not Config.isMainTank then
 			return false
@@ -440,18 +486,21 @@ if wotlk then
 		end
 		return false
 	end
+
 	abilities["MaintainDemoralizingRoar"] = function()
 		if not Cache.demoRoarActive and dalvae.spellUsable(SPELLS.DemoralizingRoar) and Cache.targetInMelee then
 			return dalvae.cast(SPELLS.DemoralizingRoar)
 		end
 		return false
 	end
+
 	abilities["MaintainMangleBear"] = function()
 		if dalvae.spellUsable(SPELLS.MangleBear) then
 			return dalvae.cast(SPELLS.MangleBear, "target")
 		end
 		return false
 	end
+
 	abilities["MaintainLacerate"] = function()
 		if
 			(Cache.lacerateStacks < 5 or (Cache.lacerateStacks == 5 and Cache.lacerateRemains < 3))
@@ -461,18 +510,21 @@ if wotlk then
 		end
 		return false
 	end
+
 	abilities["MaulRageDump"] = function()
 		if Cache.rage > 60 and dalvae.spellUsable(SPELLS.Maul) then
 			return dalvae.cast(SPELLS.Maul, "target")
 		end
 		return false
 	end
+
 	abilities["SpamSwipeBear"] = function()
 		if #Cache.enemies_in_range >= Config.aoeEnemyCount and dalvae.spellUsable(SPELLS.SwipeBear) then
 			return dalvae.cast(SPELLS.SwipeBear)
 		end
 		return false
 	end
+
 	abilities["SpamMaul"] = function()
 		if dalvae.spellUsable(SPELLS.Maul) and Cache.rage > 30 then
 			return dalvae.cast(SPELLS.Maul, "target")
@@ -480,81 +532,99 @@ if wotlk then
 		return false
 	end
 
-	-- OUT OF COMBAT & PRE-PULL
-	abilities["AutoProwl"] = function()
-		if Config.autoProwlEnabled and Cache.currentForm == FORMS.cat and not ni.player.buff(SPELLS.Prowl.id) then
-			return dalvae.cast(SPELLS.Prowl)
-		end
-		return false
-	end
-	abilities["PreCombatHandler"] = function()
-		for _, t in pairs(DBM_Timers) do
-			if t.message == "Pull in" then
-				local r = t.expirationTime - GetTime()
-				if r > 0 then
-					if r < 8 and r > 2 and Config.huntForClearcasting and not Cache.hasClearcasting then
-						dalvae.cast(SPELLS.MarkoftheWild, "player")
-					end
-					if r < 1.6 and r > 1.4 and Config.useOffensivePrePot then
-						local pot = dalvae.findBestItem(ITEMS.speed_potions)
-						if pot then
-							return ni.player.useitem(pot)
-						end
-					end
-				end
-			end
-		end
-		return false
-	end
+	-- ===================================================================================
+	-- DYNAMIC QUEUES - El "cuándo hacer"
+	-- ===================================================================================
+	local OutOfCombatQueue = {
+		"CacheUpdate",
+		"StopConditions",
+		"AutoCatFormOOC",
+		"AutoProwl",
+		"PreCombatHandler",
+	}
+
+	local DpsSingleTargetQueue = {
+		"CacheUpdate",
+		"StopConditions",
+		"Defensives",
+		"TargetSwapHandler",
+		"BerserkOnFear",
+		"AutoDispel",
+		"AutoForm",
+		"AutoAttack",
+		"Opener",
+		"UseClearcastingFinisher",
+		"UseClearcastingShred",
+		"UseEngineeringGloves",
+		"AlignCooldowns",
+		"MaintainSavageRoar",
+		"MaintainRip",
+		"MaintainRake",
+		"MaintainMangle",
+		"FerociousBiteExecute",
+		"UseTigersFury",
+		"BuildComboPoints",
+		"Powershift",
+	}
+
+	local DpsAoEQueue = {
+		"CacheUpdate",
+		"StopConditions",
+		"Defensives",
+		"TargetSwapHandler",
+		"BerserkOnFear",
+		"AutoDispel",
+		"AutoForm",
+		"AutoAttack",
+		"Opener",
+		"UseClearcastingShred",
+		"UseEngineeringGloves",
+		"AlignCooldowns",
+		"SelectHighestHealthTarget",
+		"MaintainSavageRoar",
+		"SpamSwipe",
+		"BuildComboPointsForAoE",
+		"UseTigersFury",
+		"Powershift",
+	}
+
+	local TankSingleTargetQueue = {
+		"CacheUpdate",
+		"StopConditions",
+		"Defensives",
+		"AutoForm",
+		"AutoAttack",
+		"ManageThreat",
+		"MaintainDemoralizingRoar",
+		"MaintainMangleBear",
+		"MaintainLacerate",
+		"MaulRageDump",
+	}
+	local TankAoEQueue = {
+		"CacheUpdate",
+		"StopConditions",
+		"Defensives",
+		"AutoForm",
+		"AutoAttack",
+		"ManageThreat",
+		"MaintainDemoralizingRoar",
+		"SpamSwipeBear",
+		"SpamMaul",
+	}
 
 	-- ===================================================================================
-	-- CORE LOGIC
+	-- CORE LOGIC - El Selector de Cola Dinámico
 	-- ===================================================================================
-	local function getDynamicQueue()
-		local useAoE = #Cache.enemies_in_range >= Config.aoeEnemyCount and ni.vars.combat.aoe
+	local function DynamicQueueSelector()
+		if not UnitAffectingCombat("player") then
+			return OutOfCombatQueue
+		end
+
+		local useAoE = #ni.unit.enemiesinrange("player", 10) >= Config.aoeEnemyCount and ni.vars.combat.aoe
 		if PlayerSpec == "TANK" then
 			return useAoE and TankAoEQueue or TankSingleTargetQueue
-		else
+		else -- DPS
 			return useAoE and DpsAoEQueue or DpsSingleTargetQueue
-		end
-	end
-	local function mainRotation()
-		abilities.CacheUpdate()
-		if abilities.StopConditions() then
-			return
-		end
-		if Cache.inCombat then
-			if abilities.Defensives() then
-				return
-			end
-			if abilities.TargetSwapHandler() then
-				return
-			end
-			if abilities.BerserkOnFear() then
-				return
-			end
-			if abilities.AutoDispel() then
-				return
-			end
-			if abilities.AutoForm() then
-				return
-			end
-			if abilities.AutoAttack() then
-				return
-			end
-			local queue = getDynamicQueue()
-			for _, name in ipairs(queue) do
-				if abilities[name]() then
-					return
-				end
-			end
-		else
-			if abilities.AutoProwl() then
-				return
-			end
-			if abilities.PreCombatHandler() then
-				return
-			end
 		end
 	end
 
@@ -563,13 +633,10 @@ if wotlk then
 	-- ===================================================================================
 	local function updatePlayerSpec()
 		local _, _, _, _, rank = GetTalentInfo(2, 22)
-		if rank and rank >= 3 then
-			PlayerSpec = "TANK"
-		else
-			PlayerSpec = "DPS"
-		end
+		PlayerSpec = (rank and rank >= 3) and "TANK" or "DPS"
 		print("Dalvae Feral: Specialization set to " .. PlayerSpec)
 	end
+
 	local function DBMEventHandler(event, id, msg, duration)
 		if event == "DBM_TimerStart" then
 			DBM_Timers[id] = { message = msg, expirationTime = GetTime() + duration }
@@ -577,9 +644,10 @@ if wotlk then
 			DBM_Timers[id] = nil
 		end
 	end
+
 	SLASH_SHRED1 = "/shred"
 	SlashCmdList["SHRED"] = function()
-		if Cache.currentForm ~= FORMS.cat then
+		if GetShapeshiftForm() ~= FORMS.cat then
 			dalvae.cast(SPELLS.CatForm)
 		else
 			if ni.unit.isbehind("player", "target") then
@@ -591,7 +659,7 @@ if wotlk then
 	end
 	SLASH_CHARGES1 = "/charges"
 	SlashCmdList["CHARGES"] = function()
-		if Cache.currentForm ~= FORMS.bear then
+		if GetShapeshiftForm() ~= FORMS.bear then
 			dalvae.cast(SPELLS.BearForm)
 		else
 			ni.player.lookat("mouseover")
@@ -616,6 +684,7 @@ if wotlk then
 		abilities.ScanConsumables()
 		print("Dalvae Feral Druid profile loaded.")
 	end
+
 	local function onunload()
 		ni.listener:remove("DalvaeFeral", "PLAYER_ENTERING_WORLD")
 		ni.listener:remove("DalvaeFeral", "ACTIVE_TALENT_GROUP_CHANGED")
@@ -628,5 +697,8 @@ if wotlk then
 		print("Dalvae Feral Druid profile unloaded.")
 	end
 
-	ni.bootstrap.profile("Dalvae_Feral_Wotlk", mainRotation, nil, onload, onunload)
+	-- ===================================================================================
+	-- BOOTSTRAP - Conectamos todo al motor de "ni"
+	-- ===================================================================================
+	ni.bootstrap.profile("Dalvae_Feral_Wotlk", DynamicQueueSelector, abilities, onload, onunload)
 end
