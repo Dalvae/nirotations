@@ -1,5 +1,5 @@
 local vars = {
-	latency = 225,
+	latency = 160,
 	interrupt = "all",
 	debug = false,
 	icon = true,
@@ -14,7 +14,7 @@ local vars = {
 		generic = "F3",
 		interrupt = "F4",
 		follow = "F5",
-		gui = "F10"
+		gui = "F10",
 	},
 	profiles = {
 		primary = "None",
@@ -27,7 +27,7 @@ local vars = {
 		delay = 0,
 		interrupt = false,
 		enabled = false,
-		useEngine = true
+		useEngine = true,
 	},
 	units = {
 		follow = "",
@@ -35,7 +35,7 @@ local vars = {
 		mainTank = "",
 		mainTankEnabled = false,
 		offTank = "",
-		offTankEnabled = false
+		offTankEnabled = false,
 	},
 	combat = {
 		started = false,
@@ -48,11 +48,11 @@ local vars = {
 		queued = false,
 		currentcastend = 0,
 		spellqueueenabled = true,
-		spellqueuems = 120
+		spellqueuems = 120,
 	},
 	interrupts = {
 		whitelisted = {},
-		blacklisted = {}
-	}
+		blacklisted = {},
+	},
 }
-return vars;
+return vars
