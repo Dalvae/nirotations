@@ -69,6 +69,7 @@ if wotlk then
 		rage = 0,
 		lacerateStacks = 0,
 		lacerateRemains = 0,
+		tigersFuryRemains = 0, -- <-- AÑADE ESTO
 		demoRoarActive = false,
 		availableConsumables = { healthstone = nil, potion = nil },
 	}
@@ -94,10 +95,10 @@ if wotlk then
 		Cache.targetExists = ni.unit.exists("target")
 		Cache.hasBloodlust = ni.player.buff(2825) or ni.player.buff(32182)
 
+		Cache.playerHP = ni.player.hp()
 		if not Cache.targetExists or not UnitCanAttack("player", "target") then
-			return true
+			return false
 		end
-
 		Cache.targetHP = ni.unit.hp("target")
 		Cache.targetTTD = ni.unit.ttd("target")
 		Cache.targetIsBehind = ni.unit.isbehind("player", "target")
@@ -114,13 +115,18 @@ if wotlk then
 			local threatValue = ni.unit.threat("target") or 0
 			Cache.threatStatus = { percent = threatValue }
 			Cache.hasClearcasting = ni.player.buff(SPELLS.Clearcasting.id)
+			Cache.tigersFuryRemains = ni.player.buffremaining(SPELLS.TigersFury.id)
 		elseif PlayerSpec == "TANK" and Cache.currentForm == FORMS.bear then
 			Cache.rage = ni.player.powerraw("rage")
 			Cache.lacerateStacks = ni.unit.debuffstacks("target", SPELLS.Lacerate.id, "player")
 			Cache.lacerateRemains = ni.unit.debuffremaining("target", SPELLS.Lacerate.id, "player")
 			Cache.demoRoarActive = ni.unit.debuff("target", SPELLS.DemoralizingRoar.id)
 		end
-		return true
+
+		-- --- CAMBIO CLAVE 2 ---
+		-- Devolvemos 'false' para indicar que la actualización ha terminado
+		-- y que el motor debe continuar con la siguiente habilidad en la cola.
+		return false
 	end
 
 	abilities["StopConditions"] = function()
@@ -192,12 +198,21 @@ if wotlk then
 	end
 
 	abilities["Defensives"] = function()
-		if Cache.playerHP < Config.survivalInstinct and dalvae.cast(SPELLS.SurvivalInstincts) then
-			return true
+		-- Supervivencia (Survival Instincts)
+		if Cache.playerHP < Config.survivalInstinct then
+			if dalvae.spellUsable(SPELLS.SurvivalInstincts) then
+				return dalvae.cast(SPELLS.SurvivalInstincts)
+			end
 		end
-		if Cache.playerHP < Config.barkskin and dalvae.cast(SPELLS.Barkskin) then
-			return true
+
+		-- Piel de corteza (Barkskin)
+		if Cache.playerHP < Config.barkskin then
+			if dalvae.spellUsable(SPELLS.Barkskin) then
+				return dalvae.cast(SPELLS.Barkskin)
+			end
 		end
+
+		-- Pociones y Piedras de Vida
 		if Cache.playerHP < Config.healthstonePotion then
 			if
 				Cache.availableConsumables.healthstone
@@ -209,6 +224,8 @@ if wotlk then
 				return ni.player.useitem(Cache.availableConsumables.potion)
 			end
 		end
+
+		-- Gestión de Amenaza (Shadowmeld)
 		if
 			PlayerSpec == "DPS"
 			and select(2, UnitRace("player")) == "NightElf"
@@ -220,13 +237,16 @@ if wotlk then
 				return dalvae.cast(SPELLS.BearForm)
 			end
 		end
+
+		-- Regeneración Frenética (Tanque)
 		if
 			PlayerSpec == "TANK"
 			and Cache.playerHP < Config.frenziedRegen
-			and dalvae.cast(SPELLS.FrenziedRegeneration)
+			and dalvae.spellUsable(SPELLS.FrenziedRegeneration)
 		then
-			return true
+			return dalvae.cast(SPELLS.FrenziedRegeneration)
 		end
+
 		return false
 	end
 
@@ -291,8 +311,8 @@ if wotlk then
 	end
 
 	abilities["Opener"] = function()
-		if Cache.inCombat and ni.player.buff(SPELLS.Prowl.id) then
-			if Cache.targetIsBehind and dalvae.spellUsable(SPELLS.Pounce) then
+		if ni.player.buff(SPELLS.Prowl.id) then
+			if dalvae.spellUsable(SPELLS.Pounce) then
 				return dalvae.cast(SPELLS.Pounce, "target")
 			elseif dalvae.spellUsable(SPELLS.MangleCat) then
 				return dalvae.cast(SPELLS.MangleCat, "target")
@@ -541,6 +561,7 @@ if wotlk then
 		"AutoCatFormOOC",
 		"AutoProwl",
 		"PreCombatHandler",
+		"Opener",
 	}
 
 	local DpsSingleTargetQueue = {
