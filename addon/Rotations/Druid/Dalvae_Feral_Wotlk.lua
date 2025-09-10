@@ -69,7 +69,7 @@ if wotlk then
 		rage = 0,
 		lacerateStacks = 0,
 		lacerateRemains = 0,
-		tigersFuryRemains = 0, -- <-- AÑADE ESTO
+		tigersFuryRemains = 0,
 		demoRoarActive = false,
 		availableConsumables = { healthstone = nil, potion = nil },
 	}
@@ -111,7 +111,7 @@ if wotlk then
 			Cache.savageRoarRemains = ni.player.buffremaining(SPELLS.SavageRoar.id)
 			Cache.ripRemains = ni.unit.debuffremaining("target", SPELLS.Rip.id, "player")
 			Cache.rakeRemains = ni.unit.debuffremaining("target", SPELLS.Rake.id, "player")
-			Cache.mangleRemains = ni.unit.debuffremaining("target", SPELLS.MangleCat.id)
+			Cache.mangleRemains = ni.unit.debuffremaining("target", SPELLS.MangleCat.id, "player")
 			local threatValue = ni.unit.threat("target") or 0
 			Cache.threatStatus = { percent = threatValue }
 			Cache.hasClearcasting = ni.player.buff(SPELLS.Clearcasting.id)
@@ -122,10 +122,6 @@ if wotlk then
 			Cache.lacerateRemains = ni.unit.debuffremaining("target", SPELLS.Lacerate.id, "player")
 			Cache.demoRoarActive = ni.unit.debuff("target", SPELLS.DemoralizingRoar.id)
 		end
-
-		-- --- CAMBIO CLAVE 2 ---
-		-- Devolvemos 'false' para indicar que la actualización ha terminado
-		-- y que el motor debe continuar con la siguiente habilidad en la cola.
 		return false
 	end
 
@@ -198,21 +194,16 @@ if wotlk then
 	end
 
 	abilities["Defensives"] = function()
-		-- Supervivencia (Survival Instincts)
 		if Cache.playerHP < Config.survivalInstinct then
 			if dalvae.spellUsable(SPELLS.SurvivalInstincts) then
 				return dalvae.cast(SPELLS.SurvivalInstincts)
 			end
 		end
-
-		-- Piel de corteza (Barkskin)
 		if Cache.playerHP < Config.barkskin then
 			if dalvae.spellUsable(SPELLS.Barkskin) then
 				return dalvae.cast(SPELLS.Barkskin)
 			end
 		end
-
-		-- Pociones y Piedras de Vida
 		if Cache.playerHP < Config.healthstonePotion then
 			if
 				Cache.availableConsumables.healthstone
@@ -224,8 +215,6 @@ if wotlk then
 				return ni.player.useitem(Cache.availableConsumables.potion)
 			end
 		end
-
-		-- Gestión de Amenaza (Shadowmeld)
 		if
 			PlayerSpec == "DPS"
 			and select(2, UnitRace("player")) == "NightElf"
@@ -237,8 +226,6 @@ if wotlk then
 				return dalvae.cast(SPELLS.BearForm)
 			end
 		end
-
-		-- Regeneración Frenética (Tanque)
 		if
 			PlayerSpec == "TANK"
 			and Cache.playerHP < Config.frenziedRegen
@@ -246,7 +233,6 @@ if wotlk then
 		then
 			return dalvae.cast(SPELLS.FrenziedRegeneration)
 		end
-
 		return false
 	end
 
@@ -340,6 +326,9 @@ if wotlk then
 		return false
 	end
 
+	-- #################################################################
+	-- ##               INICIO DEL CAMBIO DE FLUIDEZ DE CDS           ##
+	-- #################################################################
 	abilities["AlignCooldowns"] = function()
 		if not ni.vars.combat.cd or not dalvae.spellUsable(SPELLS.Berserk) then
 			return false
@@ -347,16 +336,21 @@ if wotlk then
 		if Cache.tigersFuryRemains > 0 then
 			dalvae.cast(SPELLS.Berserk)
 			if Config.useCombatPotions then
-				local pot = Cache.hasBloodlust and dalvae.findBestItem(ITEMS.strength_potions)
-					or dalvae.findBestItem(ITEMS.speed_potions)
+				local pot = nil
+				if Cache.hasBloodlust and ITEMS.strength_potions then
+					pot = dalvae.findBestItem(ITEMS.strength_potions)
+				end
+				if not pot and ITEMS.speed_potions then
+					pot = dalvae.findBestItem(ITEMS.speed_potions)
+				end
 				if pot then
 					ni.player.useitem(pot)
 				end
 			end
 			ni.player.runtext("/use 10")
-			return true
+			-- NO retornamos 'true'. Esto permite que otra habilidad se use en el mismo ciclo.
 		end
-		return false
+		return false -- DEVOLVEMOS FALSE SIEMPRE para no bloquear la rotación.
 	end
 
 	abilities["UseEngineeringGloves"] = function()
@@ -364,8 +358,11 @@ if wotlk then
 			return false
 		end
 		ni.player.runtext("/use 10")
-		return true
+		return false -- CAMBIADO a 'false' para no bloquear la rotación.
 	end
+	-- #################################################################
+	-- ##                 FIN DEL CAMBIO DE FLUIDEZ DE CDS             ##
+	-- #################################################################
 
 	abilities["MaintainSavageRoar"] = function()
 		if Cache.comboPoints > 0 then
@@ -379,26 +376,37 @@ if wotlk then
 		return false
 	end
 
+	-- #################################################################
+	-- ##            INICIO DEL CAMBIO DE TIMING DE SANGRADOS         ##
+	-- #################################################################
 	abilities["MaintainRip"] = function()
-		if Cache.comboPoints >= 5 and Cache.ripRemains < 2 and Cache.savageRoarRemains > 2 and Cache.targetTTD > 10 then
+		if
+			Cache.comboPoints >= 5
+			and Cache.ripRemains < 0.2
+			and Cache.savageRoarRemains > 2
+			and Cache.targetTTD > 10
+		then
 			return dalvae.cast(SPELLS.Rip, "target")
 		end
 		return false
 	end
 
 	abilities["MaintainRake"] = function()
-		if Cache.rakeRemains < 2 and Cache.comboPoints < 5 then
+		if Cache.rakeRemains < 0.2 and Cache.comboPoints < 5 then
 			return dalvae.cast(SPELLS.Rake, "target")
 		end
 		return false
 	end
 
 	abilities["MaintainMangle"] = function()
-		if ni.unit.debuffremaining("target", SPELLS.MangleCat.id) < 2 then
+		if ni.unit.debuffremaining("target", SPELLS.MangleCat.id, "player") < 0.2 then
 			return dalvae.cast(SPELLS.MangleCat, "target")
 		end
 		return false
 	end
+	-- #################################################################
+	-- ##              FIN DEL CAMBIO DE TIMING DE SANGRADOS          ##
+	-- #################################################################
 
 	abilities["FerociousBiteExecute"] = function()
 		if
@@ -438,6 +446,7 @@ if wotlk then
 			and Cache.energy < 35
 			and not Cache.hasClearcasting
 			and ni.spell.cd(SPELLS.TigersFury.id) > 2
+			and Cache.comboPoints < 5
 		then
 			ni.player.runtext("/cast !Cat Form")
 			return true
@@ -478,7 +487,7 @@ if wotlk then
 
 	abilities["BuildComboPointsForAoE"] = function()
 		if Cache.savageRoarRemains < 5 and Cache.comboPoints < 3 then
-			if not ni.unit.debuff("target", SPELLS.MangleCat.id) then
+			if not ni.unit.debuff("target", SPELLS.MangleCat.id, "player") then
 				return dalvae.cast(SPELLS.MangleCat, "target")
 			end
 			if not ni.unit.debuff("target", SPELLS.Rake.id, "player") then
